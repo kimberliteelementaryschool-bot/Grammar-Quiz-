@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Grammar Obby — Kimberlite Elementary School</title>
+<style>
+:root {
+  --bg: #0a0a1a;
+  --panel: #12122a;
+  --card: #1a1a35;
+  --border: #3a3a6a;
+  --red: #ff4444;
+  --green: #44ff88;
+  --blue: #44aaff;
+  --yellow: #ffdd00;
+  --orange: #ff8c00;
+  --pink: #ff44aa;
+  --cyan: #00ffee;
+  --white: #eeeeff;
+  --dim: #8888aa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background-color: #0a0a1a;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #eeeeff;
+  padding: 12px;
+}
+
+/* ===== SPLASH / NAME ENTRY SCREEN ===== */
+#splash-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #0a0a1a;
+  z-index: 200;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+#splash-screen.hidden { display: none; }
+
+.splash-logo-wrap {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 0 24px rgba(255,255,255,0.3), 0 0 8px rgba(68,170,255,0.5);
+  margin-bottom: 18px;
+  width: 90px;
+  height: 90px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+.splash-logo-img {
+  width: 74px;
+  height: 74px;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}
+.splash-logo-fallback {
+  display: none;
+  width: 74px;
+  height: 74px;
+  background: linear-gradient(135deg, #ffdd00, #ff8c00);
+  border-radius: 8px;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #000;
+  font-family: 'Courier New', monospace;
+}
+
+.splash-school {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #00ffee;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+.splash-tagline {
+  font-size: 12px;
+  color: #8888aa;
+  margin-bottom: 24px;
+}
+.splash-title {
+  font-family: 'Courier New', monospace;
+  font-size: clamp(20px, 6vw, 34px);
+  color: #ffdd00;
+  font-weight: bold;
+  text-shadow: 3px 3px 0 #aa8800;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.splash-desc {
+  font-size: 14px;
+  color: #8888aa;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+.splash-desc span { color: #44ff88; font-weight: bold; }
+
+.name-form {
+  width: 100%;
+  max-width: 380px;
+  background: #12122a;
+  border: 2px solid #3a3a6a;
+  border-radius: 8px;
+  padding: 24px;
+}
+.name-form-title {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #ffdd00;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.name-label {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: #8888aa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 6px;
+  text-align: left;
+}
+.name-input {
+  width: 100%;
+  background: #0a0a1a;
+  border: 2px solid #3a3a6a;
+  border-radius: 4px;
+  padding: 12px 14px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #eeeeff;
+  outline: none;
+  margin-bottom: 6px;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+}
+.name-input:focus { border-color: #44aaff; }
+.name-input.error { border-color: #ff4444; }
+
+.class-row {
+  display: -webkit-flex;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.class-row .name-input { margin-bottom: 0; }
+
+.input-error {
+  font-size: 12px;
+  color: #ff4444;
+  margin-bottom: 14px;
+  display: none;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.input-error.show { display: block; }
+
+.start-btn {
+  width: 100%;
+  background: #ffdd00;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  padding: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #aa8800;
+  margin-top: 8px;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s;
+}
+.start-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #aa8800; }
+
+/* ===== MAIN QUIZ AREA ===== */
+#quiz-area { display: none; }
+#quiz-area.visible { display: block; }
+
+/* ===== HEADER ===== */
+.school-bar {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  gap: 16px;
+  background: #12122a;
+  border: 2px solid #44aaff;
+  border-radius: 8px;
+  padding: 14px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 0 18px rgba(68,170,255,0.25);
+}
+.logo-wrap {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 0 16px rgba(255,255,255,0.35), 0 0 6px rgba(68,170,255,0.4);
+  flex-shrink: 0;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+}
+.school-logo-img {
+  width: 68px; height: 68px;
+  object-fit: contain; border-radius: 6px; display: block;
+}
+.logo-fallback {
+  display: none; width: 68px; height: 68px;
+  background: linear-gradient(135deg,#ffdd00,#ff8c00);
+  border-radius: 8px;
+  -webkit-align-items: center; align-items: center;
+  -webkit-justify-content: center; justify-content: center;
+  font-size: 26px; font-weight: bold; color: #000;
+  font-family: 'Courier New', monospace;
+}
+.school-text { text-align: left; }
+.school-name {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px; color: #00ffee; font-weight: bold;
+  letter-spacing: 1px; line-height: 1.6; text-transform: uppercase;
+}
+.school-tagline { font-size: 11px; color: #8888aa; margin-top: 3px; }
+
+.game-title {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: clamp(18px, 5vw, 30px);
+  color: #ffdd00; text-align: center; font-weight: bold;
+  text-shadow: 3px 3px 0 #aa8800; margin-bottom: 4px; letter-spacing: 2px;
+}
+.game-subtitle { text-align: center; font-size: 13px; color: #8888aa; margin-bottom: 16px; }
+
+.player-banner {
+  background: rgba(68,255,136,0.07);
+  border: 1px solid rgba(68,255,136,0.3);
+  border-radius: 6px;
+  padding: 8px 16px;
+  text-align: center;
+  margin-bottom: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #44ff88;
+  letter-spacing: 1px;
+}
+.player-banner span { color: #ffdd00; font-size: 13px; }
+
+/* ===== HUD ===== */
+.hud {
+  display: -webkit-flex; display: flex;
+  -webkit-align-items: center; align-items: center;
+  -webkit-justify-content: space-between; justify-content: space-between;
+  -webkit-flex-wrap: wrap; flex-wrap: wrap;
+  gap: 10px; background: #12122a; border: 2px solid #3a3a6a;
+  border-radius: 6px; padding: 10px 14px; margin-bottom: 18px;
+}
+.hud-lives { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; gap: 4px; }
+.lives-label { font-family: 'Courier New', monospace; font-size: 9px; color: #8888aa; margin-right: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.heart { font-size: 22px; }
+.heart-lost { font-size: 22px; opacity: 0.2; filter: grayscale(1); }
+.hud-xp { flex: 1; min-width: 150px; }
+.xp-label { font-family: 'Courier New', monospace; font-size: 9px; color: #ffdd00; margin-bottom: 4px; display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; letter-spacing: 1px; }
+.xp-track { background: #0a0a1a; border: 2px solid #3a3a6a; height: 16px; border-radius: 3px; overflow: hidden; }
+.xp-fill { height: 100%; background: linear-gradient(90deg,#ffdd00,#ff8c00); width: 0%; transition: width 0.5s ease; box-shadow: 0 0 8px rgba(255,221,0,0.5); }
+.hud-score { font-family: 'Courier New', monospace; font-size: 10px; color: #44ff88; white-space: nowrap; font-weight: bold; }
+
+/* ===== SECTION HEADERS ===== */
+.section-header {
+  font-family: 'Courier New', monospace; font-size: clamp(11px,3vw,15px); font-weight: bold;
+  color: #ffdd00; text-align: center; padding: 10px 16px; margin: 24px 0 14px 0;
+  background: rgba(255,221,0,0.07); border-top: 2px solid #ffdd00; border-bottom: 2px solid #ffdd00;
+  letter-spacing: 2px; text-shadow: 1px 1px 0 #aa8800;
+}
+
+/* ===== CARDS ===== */
+.levels-grid { display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; gap: 14px; max-width: 1200px; margin: 0 auto; }
+.level-card { background: #1a1a35; border: 2px solid #3a3a6a; border-radius: 6px; padding: 16px; position: relative; width: 100%; flex: 1 1 300px; }
+.level-card.solved { border-color: #44ff88; }
+.card-top-bar { height: 4px; margin: -16px -16px 14px -16px; border-radius: 4px 4px 0 0; }
+.bar-green  { background:#44ff88; box-shadow:0 0 8px #44ff88; }
+.bar-yellow { background:#ffdd00; box-shadow:0 0 8px #ffdd00; }
+.bar-orange { background:#ff8c00; box-shadow:0 0 8px #ff8c00; }
+.bar-pink   { background:#ff44aa; box-shadow:0 0 8px #ff44aa; }
+.bar-cyan   { background:#00ffee; box-shadow:0 0 8px #00ffee; }
+.bar-blue   { background:#44aaff; box-shadow:0 0 8px #44aaff; }
+.bar-red    { background:#ff4444; box-shadow:0 0 8px #ff4444; }
+.bar-white  { background:#ffffff; box-shadow:0 0 8px #ffffff; }
+.bar-purple { background:#cc44ff; box-shadow:0 0 8px #cc44ff; }
+.bar-lime   { background:#aaff00; box-shadow:0 0 8px #aaff00; }
+
+.level-header { display:-webkit-flex; display:flex; gap:10px; margin-bottom:10px; -webkit-align-items:flex-start; align-items:flex-start; }
+.level-badge { font-family:'Courier New',monospace; font-size:9px; font-weight:bold; padding:5px 8px; border-radius:3px; white-space:nowrap; line-height:1.6; text-align:center; flex-shrink:0; }
+.badge-green  { background:rgba(68,255,136,0.12); color:#44ff88; border:1px solid #44ff88; }
+.badge-yellow { background:rgba(255,221,0,0.12);  color:#ffdd00; border:1px solid #ffdd00; }
+.badge-orange { background:rgba(255,140,0,0.12);  color:#ff8c00; border:1px solid #ff8c00; }
+.badge-pink   { background:rgba(255,68,170,0.12); color:#ff44aa; border:1px solid #ff44aa; }
+.badge-cyan   { background:rgba(0,255,238,0.12);  color:#00ffee; border:1px solid #00ffee; }
+.badge-blue   { background:rgba(68,170,255,0.12); color:#44aaff; border:1px solid #44aaff; }
+.badge-red    { background:rgba(255,68,68,0.12);  color:#ff4444; border:1px solid #ff4444; }
+.badge-white  { background:rgba(255,255,255,0.08);color:#fff;    border:1px solid #fff; }
+.badge-purple { background:rgba(204,68,255,0.12); color:#cc44ff; border:1px solid #cc44ff; }
+.badge-lime   { background:rgba(170,255,0,0.12);  color:#aaff00; border:1px solid #aaff00; }
+
+.level-title-block { flex:1; }
+.level-num { font-family:'Courier New',monospace; font-size:8px; color:#8888aa; margin-bottom:3px; text-transform:uppercase; letter-spacing:1px; }
+.level-title { font-family:'Courier New',monospace; font-size:clamp(10px,2.2vw,12px); color:#eeeeff; font-weight:bold; line-height:1.5; }
+.question-text { font-size:14px; font-weight:bold; color:#eeeeff; margin-bottom:10px; line-height:1.5; }
+.options { margin-bottom:10px; }
+.opt-btn {
+  display:block; width:100%; background:rgba(255,255,255,0.04); border:2px solid #3a3a6a;
+  border-radius:4px; padding:10px 14px; font-family:Arial,Helvetica,sans-serif; font-size:14px;
+  font-weight:bold; color:#eeeeff; cursor:pointer; text-align:left; margin-bottom:7px;
+  -webkit-appearance:none; -webkit-tap-highlight-color:transparent;
+}
+.opt-btn.state-correct { background:rgba(68,255,136,0.18)!important; border-color:#44ff88!important; color:#44ff88!important; }
+.opt-btn.state-wrong   { background:rgba(255,68,68,0.18)!important;  border-color:#ff4444!important; color:#ff4444!important; }
+.opt-btn.state-disabled { opacity:0.4; cursor:default; }
+
+.hint-btn { background:rgba(255,221,0,0.08); border:1px solid #ffdd00; color:#ffdd00; font-family:'Courier New',monospace; font-size:9px; padding:6px 12px; cursor:pointer; border-radius:3px; margin-bottom:8px; -webkit-appearance:none; -webkit-tap-highlight-color:transparent; letter-spacing:1px; font-weight:bold; }
+.hint-text { display:none; font-size:13px; color:#ffdd00; background:rgba(255,221,0,0.06); border:1px dashed rgba(255,221,0,0.35); padding:8px 12px; border-radius:3px; margin-bottom:8px; line-height:1.55; }
+.hint-text.visible { display:block; }
+.feedback { display:none; padding:10px 14px; border-radius:4px; font-size:13px; line-height:1.6; margin-top:4px; }
+.feedback.visible { display:block; }
+.feedback.fb-correct { background:rgba(68,255,136,0.1); border:1px solid rgba(68,255,136,0.4); color:#aaffcc; }
+.feedback.fb-wrong   { background:rgba(255,68,68,0.1);  border:1px solid rgba(255,68,68,0.4);  color:#ffaaaa; }
+.fb-title { font-family:'Courier New',monospace; font-size:10px; font-weight:bold; display:block; margin-bottom:5px; letter-spacing:1px; }
+.fb-correct .fb-title { color:#44ff88; }
+.fb-wrong   .fb-title { color:#ff4444; }
+.solved-stamp { display:none; position:absolute; top:14px; right:14px; font-family:'Courier New',monospace; font-size:9px; color:#44ff88; border:2px solid #44ff88; padding:3px 7px; transform:rotate(8deg); font-weight:bold; letter-spacing:1px; }
+.level-card.solved .solved-stamp { display:block; }
+
+/* ===== OVERLAY SCREENS ===== */
+.overlay {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,10,0.97); z-index:100;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:center; justify-content:center;
+  -webkit-flex-direction:column; flex-direction:column;
+  text-align:center; padding:24px; overflow-y:auto;
+}
+.overlay.visible { display:-webkit-flex; display:flex; }
+.win-stars { font-size:34px; margin-bottom:14px; letter-spacing:6px; }
+.win-title { font-family:'Courier New',monospace; font-size:clamp(14px,4vw,22px); color:#ffdd00; font-weight:bold; text-shadow:2px 2px 0 #aa8800; margin-bottom:10px; line-height:1.5; letter-spacing:1px; }
+.win-player { font-size:18px; color:#00ffee; font-weight:bold; margin-bottom:8px; }
+.win-sub  { font-size:14px; color:#aaaacc; margin-bottom:14px; line-height:1.6; }
+.win-xp   { font-family:'Courier New',monospace; font-size:12px; color:#44ff88; margin-bottom:8px; font-weight:bold; letter-spacing:1px; }
+.win-score { font-family:'Courier New',monospace; font-size:12px; color:#ffdd00; margin-bottom:22px; letter-spacing:1px; }
+
+.submit-status { font-size:13px; margin-bottom:16px; min-height:20px; }
+.submit-status.sending { color:#ffdd00; }
+.submit-status.sent    { color:#44ff88; }
+.submit-status.failed  { color:#ff8c00; }
+
+.go-title { font-family:'Courier New',monospace; font-size:clamp(16px,4vw,24px); color:#ff4444; font-weight:bold; margin-bottom:12px; line-height:1.5; }
+.go-sub   { font-size:14px; color:#ffaaaa; margin-bottom:24px; line-height:1.6; }
+.play-again-btn { background:#ffdd00; color:#000; border:none; font-family:'Courier New',monospace; font-size:12px; font-weight:bold; padding:14px 28px; cursor:pointer; border-radius:4px; box-shadow:0 4px 0 #aa8800; letter-spacing:1px; -webkit-appearance:none; -webkit-tap-highlight-color:transparent; }
+
+@media (min-width:700px)  { .level-card { max-width:calc(50% - 7px); } }
+@media (min-width:1050px) { .level-card { max-width:calc(33.33% - 10px); } }
+</style>
+</head>
+<body>
+
+<!-- ===================================================== -->
+<!--  SPLASH / NAME ENTRY SCREEN                          -->
+<!-- ===================================================== -->
+<div id="splash-screen">
+  <div class="splash-logo-wrap">
+    <img class="splash-logo-img"
+      src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,fit=crop/YKbEnO5xrKHVpwNP/kimberlite-1080-x-1350-px-3-dWxBor75JXirJOlJ.png"
+      alt="Kimberlite Logo"
+      onerror="this.style.display='none'; document.getElementById('splash-logo-fallback').style.display='flex';">
+    <div class="splash-logo-fallback" id="splash-logo-fallback">KE</div>
+  </div>
+  <div class="splash-school">Kimberlite Elementary School</div>
+  <div class="splash-tagline">Jaipur &middot; Shaping Futures with Passionate Education</div>
+  <div class="splash-title">&#127918; GRAMMAR OBBY</div>
+  <div class="splash-desc">
+    33 levels &middot; 5 zones &middot; 3 lives<br>
+    <span>Can you escape the Grammar Obby?</span>
+  </div>
+
+  <div class="name-form">
+    <div class="name-form-title">&#128100; Enter Your Details</div>
+
+    <label class="name-label">Your Full Name *</label>
+    <input class="name-input" type="text" id="input-name" placeholder="e.g. Arjun Sharma" maxlength="60" autocomplete="off">
+
+    <div class="class-row">
+      <div style="flex:1">
+        <label class="name-label">Class / Grade</label>
+        <input class="name-input" type="text" id="input-class" placeholder="e.g. 6A" maxlength="10" autocomplete="off">
+      </div>
+      <div style="flex:1">
+        <label class="name-label">Section</label>
+        <input class="name-input" type="text" id="input-section" placeholder="e.g. B" maxlength="10" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="input-error" id="name-error">&#9888; Please enter your name to continue!</div>
+
+    <button class="start-btn" onclick="startQuiz()">&#9654; START THE OBBY!</button>
+  </div>
+</div>
+
+<!-- ===================================================== -->
+<!--  MAIN QUIZ AREA                                       -->
+<!-- ===================================================== -->
+<div id="quiz-area">
+
+<!-- WIN SCREEN -->
+<div class="overlay" id="win-screen">
+  <div class="win-stars">&#11088;&#11088;&#11088;</div>
+  <div class="win-title">YOU ESCAPED<br>THE GRAMMAR OBBY!</div>
+  <div class="win-player" id="win-player-name"></div>
+  <div class="win-sub">All 33 levels crushed. You are an absolute Grammar Legend!</div>
+  <div class="win-xp"    id="win-xp-text">FINAL XP: 0 / 825</div>
+  <div class="win-score" id="win-score-text">SCORE: 0 / 33 CORRECT</div>
+  <div class="submit-status" id="submit-status"></div>
+  <button class="play-again-btn" onclick="resetGame()">&#8635; PLAY AGAIN</button>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div class="overlay" id="gameover-screen">
+  <div class="go-title">YOU FELL<br>OFF THE OBBY!</div>
+  <div class="go-sub">You ran out of lives.<br>Even the best Roblox players respawn — try again!</div>
+  <div class="submit-status" id="submit-status-go"></div>
+  <button class="play-again-btn" onclick="resetGame()">&#8635; TRY AGAIN</button>
+</div>
+
+<!-- HEADER -->
+<div class="school-bar">
+  <div class="logo-wrap">
+    <img class="school-logo-img"
+      src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,fit=crop/YKbEnO5xrKHVpwNP/kimberlite-1080-x-1350-px-3-dWxBor75JXirJOlJ.png"
+      alt="Kimberlite Logo"
+      onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+    <div class="logo-fallback" id="logo-fallback">KE</div>
+  </div>
+  <div class="school-text">
+    <div class="school-name">KIMBERLITE<br>ELEMENTARY SCHOOL</div>
+    <div class="school-tagline">Jaipur &middot; Shaping Futures with Passionate Education</div>
+  </div>
+</div>
+
+<div class="game-title">&#127918; GRAMMAR OBBY</div>
+<div class="game-subtitle">33 levels &middot; 3 lives &middot; Can you make it to the end?</div>
+<div class="player-banner">PLAYING AS: <span id="player-display-name">—</span></div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hud-lives">
+    <span class="lives-label">LIVES</span>
+    <span id="h1" class="heart">&#10084;&#65039;</span>
+    <span id="h2" class="heart">&#10084;&#65039;</span>
+    <span id="h3" class="heart">&#10084;&#65039;</span>
+  </div>
+  <div class="hud-xp">
+    <div class="xp-label"><span>&#9889; XP</span><span id="xp-text">0 / 825 XP</span></div>
+    <div class="xp-track"><div class="xp-fill" id="xp-bar"></div></div>
+  </div>
+  <div class="hud-score">&#10003; <span id="solved-count">0</span>/33 CLEARED</div>
+</div>
+
+<!-- ZONE 1 -->
+<div class="section-header">&#127381; ZONE 1 — PARTS OF SPEECH (Levels 1–7)</div>
+<div class="levels-grid">
+  <div class="level-card" id="card-1"><div class="card-top-bar bar-green"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-green">LVL 1<br>&#128994; EASY</div><div class="level-title-block"><div class="level-num">LEVEL 1 · NOUN TOWER</div><div class="level-title">Abstract Nouns!</div></div></div><p class="question-text">Which is an abstract noun?</p><div class="options" id="opts-1"><button class="opt-btn" onclick="answer(1,this,false)">a) Chair</button><button class="opt-btn" onclick="answer(1,this,true)">b) Happiness</button><button class="opt-btn" onclick="answer(1,this,false)">c) River</button><button class="opt-btn" onclick="answer(1,this,false)">d) Book</button></div><button class="hint-btn" onclick="showHint(1)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-1">An abstract noun is something you CANNOT touch or see — it is a feeling, idea or quality.</div><div class="feedback" id="fb-1"></div></div>
+
+  <div class="level-card" id="card-2"><div class="card-top-bar bar-green"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-green">LVL 2<br>&#128994; EASY</div><div class="level-title-block"><div class="level-num">LEVEL 2 · NOUN TOWER</div><div class="level-title">Collective Nouns!</div></div></div><p class="question-text">Which is a collective noun?</p><div class="options" id="opts-2"><button class="opt-btn" onclick="answer(2,this,false)">a) Honesty</button><button class="opt-btn" onclick="answer(2,this,true)">b) Team</button><button class="opt-btn" onclick="answer(2,this,false)">c) Love</button><button class="opt-btn" onclick="answer(2,this,false)">d) Jaipur</button></div><button class="hint-btn" onclick="showHint(2)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-2">A collective noun names a GROUP of people, animals or things all together.</div><div class="feedback" id="fb-2"></div></div>
+
+  <div class="level-card" id="card-3"><div class="card-top-bar bar-green"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-green">LVL 3<br>&#128994; EASY</div><div class="level-title-block"><div class="level-num">LEVEL 3 · NOUN TOWER</div><div class="level-title">Proper Nouns!</div></div></div><p class="question-text">Which is a proper noun?</p><div class="options" id="opts-3"><button class="opt-btn" onclick="answer(3,this,false)">a) Girl</button><button class="opt-btn" onclick="answer(3,this,false)">b) Boy</button><button class="opt-btn" onclick="answer(3,this,true)">c) Ramesh</button><button class="opt-btn" onclick="answer(3,this,false)">d) City</button></div><button class="hint-btn" onclick="showHint(3)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-3">A proper noun is the SPECIFIC name of a person, place or thing — always with a capital letter!</div><div class="feedback" id="fb-3"></div></div>
+
+  <div class="level-card" id="card-4"><div class="card-top-bar bar-yellow"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-yellow">LVL 4<br>&#128993; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 4 · PRONOUN PLAZA</div><div class="level-title">Spot the Pronoun!</div></div></div><p class="question-text">Which is a pronoun?</p><div class="options" id="opts-4"><button class="opt-btn" onclick="answer(4,this,true)">a) We</button><button class="opt-btn" onclick="answer(4,this,false)">b) Teacher</button><button class="opt-btn" onclick="answer(4,this,false)">c) School</button><button class="opt-btn" onclick="answer(4,this,false)">d) Book</button></div><button class="hint-btn" onclick="showHint(4)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-4">A pronoun REPLACES a noun. Examples: I, you, he, she, it, we, they.</div><div class="feedback" id="fb-4"></div></div>
+
+  <div class="level-card" id="card-5"><div class="card-top-bar bar-yellow"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-yellow">LVL 5<br>&#128993; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 5 · ADJECTIVE ARENA</div><div class="level-title">Describing Words!</div></div></div><p class="question-text">Which is an adjective?</p><div class="options" id="opts-5"><button class="opt-btn" onclick="answer(5,this,true)">a) Red</button><button class="opt-btn" onclick="answer(5,this,false)">b) Run</button><button class="opt-btn" onclick="answer(5,this,false)">c) Eat</button><button class="opt-btn" onclick="answer(5,this,false)">d) Quickly</button></div><button class="hint-btn" onclick="showHint(5)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-5">An adjective DESCRIBES a noun — colour, size, feeling. "Run" and "Eat" are verbs. "Quickly" is an adverb.</div><div class="feedback" id="fb-5"></div></div>
+
+  <div class="level-card" id="card-6"><div class="card-top-bar bar-yellow"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-yellow">LVL 6<br>&#128993; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 6 · ADVERB ALLEY</div><div class="level-title">How Did They Do It?</div></div></div><p class="question-text">Which is an adverb?</p><div class="options" id="opts-6"><button class="opt-btn" onclick="answer(6,this,false)">a) Table</button><button class="opt-btn" onclick="answer(6,this,true)">b) Slowly</button><button class="opt-btn" onclick="answer(6,this,false)">c) Teacher</button><button class="opt-btn" onclick="answer(6,this,false)">d) Book</button></div><button class="hint-btn" onclick="showHint(6)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-6">An adverb describes a VERB — how, when or where. Many adverbs end in -ly.</div><div class="feedback" id="fb-6"></div></div>
+
+  <div class="level-card" id="card-7"><div class="card-top-bar bar-yellow"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-yellow">LVL 7<br>&#128993; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 7 · VERB VOLCANO</div><div class="level-title">Action Words!</div></div></div><p class="question-text">Identify the verb:</p><div class="options" id="opts-7"><button class="opt-btn" onclick="answer(7,this,false)">a) Boy</button><button class="opt-btn" onclick="answer(7,this,true)">b) Sing</button><button class="opt-btn" onclick="answer(7,this,false)">c) Chair</button><button class="opt-btn" onclick="answer(7,this,false)">d) Ball</button></div><button class="hint-btn" onclick="showHint(7)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-7">A verb is a DOING word — which word describes something you can DO?</div><div class="feedback" id="fb-7"></div></div>
+</div>
+
+<!-- ZONE 2 -->
+<div class="section-header">&#9200; ZONE 2 — PLURALS &amp; TENSES (Levels 8–12)</div>
+<div class="levels-grid">
+  <div class="level-card" id="card-8"><div class="card-top-bar bar-orange"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-orange">LVL 8<br>&#128992; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 8 · PLURAL PORTAL</div><div class="level-title">Goose Plurals!</div></div></div><p class="question-text">Which is the plural of "goose"?</p><div class="options" id="opts-8"><button class="opt-btn" onclick="answer(8,this,false)">a) gooses</button><button class="opt-btn" onclick="answer(8,this,true)">b) geese</button><button class="opt-btn" onclick="answer(8,this,false)">c) goosies</button><button class="opt-btn" onclick="answer(8,this,false)">d) goosees</button></div><button class="hint-btn" onclick="showHint(8)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-8">Some plurals are IRREGULAR — the whole word changes! foot/feet, tooth/teeth, goose/...</div><div class="feedback" id="fb-8"></div></div>
+
+  <div class="level-card" id="card-9"><div class="card-top-bar bar-orange"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-orange">LVL 9<br>&#128992; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 9 · PLURAL PORTAL</div><div class="level-title">Cactus Plurals!</div></div></div><p class="question-text">Which is the plural of "cactus"?</p><div class="options" id="opts-9"><button class="opt-btn" onclick="answer(9,this,false)">a) cactuses</button><button class="opt-btn" onclick="answer(9,this,true)">b) cacti</button><button class="opt-btn" onclick="answer(9,this,false)">c) cactusies</button><button class="opt-btn" onclick="answer(9,this,false)">d) cactus</button></div><button class="hint-btn" onclick="showHint(9)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-9">Latin words ending in "-us" often change to "-i" in plural form.</div><div class="feedback" id="fb-9"></div></div>
+
+  <div class="level-card" id="card-10"><div class="card-top-bar bar-cyan"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-cyan">LVL 10<br>&#128992; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 10 · TENSE TOWER</div><div class="level-title">Present Continuous!</div></div></div><p class="question-text">Which sentence is in present continuous tense?</p><div class="options" id="opts-10"><button class="opt-btn" onclick="answer(10,this,true)">a) They are playing.</button><button class="opt-btn" onclick="answer(10,this,false)">b) They played.</button><button class="opt-btn" onclick="answer(10,this,false)">c) They will play.</button><button class="opt-btn" onclick="answer(10,this,false)">d) They have played.</button></div><button class="hint-btn" onclick="showHint(10)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-10">Present continuous = happening RIGHT NOW. Uses am/is/are + verb ending in -ing.</div><div class="feedback" id="fb-10"></div></div>
+
+  <div class="level-card" id="card-11"><div class="card-top-bar bar-cyan"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-cyan">LVL 11<br>&#128992; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 11 · TENSE TOWER</div><div class="level-title">Past Perfect!</div></div></div><p class="question-text">Which sentence is in past perfect tense?</p><div class="options" id="opts-11"><button class="opt-btn" onclick="answer(11,this,true)">a) She had eaten her food.</button><button class="opt-btn" onclick="answer(11,this,false)">b) She was eating her food.</button><button class="opt-btn" onclick="answer(11,this,false)">c) She eats her food.</button><button class="opt-btn" onclick="answer(11,this,false)">d) She will eat her food.</button></div><button class="hint-btn" onclick="showHint(11)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-11">Past perfect = completed BEFORE another past event. Always uses "had" + past participle.</div><div class="feedback" id="fb-11"></div></div>
+
+  <div class="level-card" id="card-12"><div class="card-top-bar bar-cyan"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-cyan">LVL 12<br>&#128992; MEDIUM</div><div class="level-title-block"><div class="level-num">LEVEL 12 · TENSE TOWER</div><div class="level-title">Future Perfect!</div></div></div><p class="question-text">Which sentence is in future perfect tense?</p><div class="options" id="opts-12"><button class="opt-btn" onclick="answer(12,this,false)">a) He has done his work.</button><button class="opt-btn" onclick="answer(12,this,true)">b) He will have done his work.</button><button class="opt-btn" onclick="answer(12,this,false)">c) He had done his work.</button><button class="opt-btn" onclick="answer(12,this,false)">d) He does his work.</button></div><button class="hint-btn" onclick="showHint(12)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-12">Future perfect = will be completed before a future point. Uses "will have" + past participle.</div><div class="feedback" id="fb-12"></div></div>
+</div>
+
+<!-- ZONE 3 -->
+<div class="section-header">&#128204; ZONE 3 — GRAMMAR IN SENTENCES (Levels 13–17)</div>
+<div class="levels-grid">
+  <div class="level-card" id="card-13"><div class="card-top-bar bar-blue"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-blue">LVL 13<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 13 · AUXILIARY VILLAGE</div><div class="level-title">Helping Verbs!</div></div></div><p class="question-text">Choose the correct auxiliary:<br>They ___ waiting for the bus.</p><div class="options" id="opts-13"><button class="opt-btn" onclick="answer(13,this,false)">a) is</button><button class="opt-btn" onclick="answer(13,this,true)">b) are</button><button class="opt-btn" onclick="answer(13,this,false)">c) am</button><button class="opt-btn" onclick="answer(13,this,false)">d) be</button></div><button class="hint-btn" onclick="showHint(13)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-13">Am = I only. Is = he/she/it. Are = you/we/they. The subject is "They".</div><div class="feedback" id="fb-13"></div></div>
+
+  <div class="level-card" id="card-14"><div class="card-top-bar bar-blue"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-blue">LVL 14<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 14 · VERB FORM FORTRESS</div><div class="level-title">Right Verb Form!</div></div></div><p class="question-text">Choose the correct form:<br>She ___ a letter yesterday.</p><div class="options" id="opts-14"><button class="opt-btn" onclick="answer(14,this,false)">a) write</button><button class="opt-btn" onclick="answer(14,this,true)">b) wrote</button><button class="opt-btn" onclick="answer(14,this,false)">c) writes</button><button class="opt-btn" onclick="answer(14,this,false)">d) writing</button></div><button class="hint-btn" onclick="showHint(14)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-14">"Yesterday" = past tense. "Write" is irregular — its past form is "wrote".</div><div class="feedback" id="fb-14"></div></div>
+
+  <div class="level-card" id="card-15"><div class="card-top-bar bar-blue"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-blue">LVL 15<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 15 · ANTONYM SWAMP</div><div class="level-title">Opposites!</div></div></div><p class="question-text">Which is the opposite of "brave"?</p><div class="options" id="opts-15"><button class="opt-btn" onclick="answer(15,this,true)">a) coward</button><button class="opt-btn" onclick="answer(15,this,false)">b) strong</button><button class="opt-btn" onclick="answer(15,this,false)">c) happy</button><button class="opt-btn" onclick="answer(15,this,false)">d) clever</button></div><button class="hint-btn" onclick="showHint(15)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-15">"Brave" means showing courage. Think of someone who is afraid to act.</div><div class="feedback" id="fb-15"></div></div>
+
+  <div class="level-card" id="card-16"><div class="card-top-bar bar-blue"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-blue">LVL 16<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 16 · SYNONYM CITY</div><div class="level-title">Same Meaning!</div></div></div><p class="question-text">Which is a synonym of "intelligent"?</p><div class="options" id="opts-16"><button class="opt-btn" onclick="answer(16,this,true)">a) clever</button><button class="opt-btn" onclick="answer(16,this,false)">b) foolish</button><button class="opt-btn" onclick="answer(16,this,false)">c) lazy</button><button class="opt-btn" onclick="answer(16,this,false)">d) dull</button></div><button class="hint-btn" onclick="showHint(16)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-16">A synonym has the SAME meaning. Foolish, lazy and dull are all opposites of intelligent.</div><div class="feedback" id="fb-16"></div></div>
+
+  <div class="level-card" id="card-17"><div class="card-top-bar bar-blue"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-blue">LVL 17<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 17 · ANTONYM SWAMP</div><div class="level-title">Victory Antonym!</div></div></div><p class="question-text">Which is the opposite of "victory"?</p><div class="options" id="opts-17"><button class="opt-btn" onclick="answer(17,this,false)">a) defeat</button><button class="opt-btn" onclick="answer(17,this,false)">b) loss</button><button class="opt-btn" onclick="answer(17,this,false)">c) failure</button><button class="opt-btn" onclick="answer(17,this,true)">d) all of these</button></div><button class="hint-btn" onclick="showHint(17)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-17">Read ALL options carefully. Sometimes more than one answer is correct!</div><div class="feedback" id="fb-17"></div></div>
+</div>
+
+<!-- ZONE 4 -->
+<div class="section-header">&#128081; ZONE 4 — VOCABULARY &amp; WORD POWER (Levels 18–24)</div>
+<div class="levels-grid">
+  <div class="level-card" id="card-18"><div class="card-top-bar bar-pink"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-pink">LVL 18<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 18 · ANTONYM SWAMP</div><div class="level-title">Rich Antonym!</div></div></div><p class="question-text">Which is the opposite of "rich"?</p><div class="options" id="opts-18"><button class="opt-btn" onclick="answer(18,this,true)">a) poor</button><button class="opt-btn" onclick="answer(18,this,false)">b) weak</button><button class="opt-btn" onclick="answer(18,this,false)">c) sad</button><button class="opt-btn" onclick="answer(18,this,false)">d) ugly</button></div><button class="hint-btn" onclick="showHint(18)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-18">"Rich" means having a lot of money. What is the opposite financial situation?</div><div class="feedback" id="fb-18"></div></div>
+
+  <div class="level-card" id="card-19"><div class="card-top-bar bar-pink"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-pink">LVL 19<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 19 · ANTONYM SWAMP</div><div class="level-title">Expand Antonym!</div></div></div><p class="question-text">Which is the opposite of "expand"?</p><div class="options" id="opts-19"><button class="opt-btn" onclick="answer(19,this,true)">a) compress</button><button class="opt-btn" onclick="answer(19,this,false)">b) increase</button><button class="opt-btn" onclick="answer(19,this,false)">c) grow</button><button class="opt-btn" onclick="answer(19,this,false)">d) rise</button></div><button class="hint-btn" onclick="showHint(19)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-19">Options b, c and d all mean the same as expand. Only one means to squeeze or make smaller.</div><div class="feedback" id="fb-19"></div></div>
+
+  <div class="level-card" id="card-20"><div class="card-top-bar bar-pink"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-pink">LVL 20<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 20 · DEGREE DUNGEON</div><div class="level-title">Comparative Degree!</div></div></div><p class="question-text">Which is the comparative degree of "happy"?</p><div class="options" id="opts-20"><button class="opt-btn" onclick="answer(20,this,false)">a) more happy</button><button class="opt-btn" onclick="answer(20,this,true)">b) happier</button><button class="opt-btn" onclick="answer(20,this,false)">c) happiest</button><button class="opt-btn" onclick="answer(20,this,false)">d) most happy</button></div><button class="hint-btn" onclick="showHint(20)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-20">Comparative compares TWO things using "-er". "Happiest" is superlative. "More happy" is incorrect.</div><div class="feedback" id="fb-20"></div></div>
+
+  <div class="level-card" id="card-21"><div class="card-top-bar bar-pink"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-pink">LVL 21<br>&#128309; HARD</div><div class="level-title-block"><div class="level-num">LEVEL 21 · DEGREE DUNGEON</div><div class="level-title">Superlative Degree!</div></div></div><p class="question-text">Which is the superlative degree of "good"?</p><div class="options" id="opts-21"><button class="opt-btn" onclick="answer(21,this,false)">a) better</button><button class="opt-btn" onclick="answer(21,this,false)">b) goodest</button><button class="opt-btn" onclick="answer(21,this,true)">c) best</button><button class="opt-btn" onclick="answer(21,this,false)">d) most good</button></div><button class="hint-btn" onclick="showHint(21)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-21">"Good" is irregular! Comparative = better. Superlative = best. "Goodest" is never correct!</div><div class="feedback" id="fb-21"></div></div>
+
+  <div class="level-card" id="card-22"><div class="card-top-bar bar-purple"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-purple">LVL 22<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 22 · SYNONYM CITY</div><div class="level-title">Angry Synonym!</div></div></div><p class="question-text">Which is a synonym of "angry"?</p><div class="options" id="opts-22"><button class="opt-btn" onclick="answer(22,this,true)">a) mad</button><button class="opt-btn" onclick="answer(22,this,false)">b) glad</button><button class="opt-btn" onclick="answer(22,this,false)">c) happy</button><button class="opt-btn" onclick="answer(22,this,false)">d) weak</button></div><button class="hint-btn" onclick="showHint(22)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-22">"Glad" and "happy" are opposite feelings. Which word also means cross or furious?</div><div class="feedback" id="fb-22"></div></div>
+
+  <div class="level-card" id="card-23"><div class="card-top-bar bar-purple"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-purple">LVL 23<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 23 · SYNONYM CITY</div><div class="level-title">Small Synonym!</div></div></div><p class="question-text">Which is a synonym of "small"?</p><div class="options" id="opts-23"><button class="opt-btn" onclick="answer(23,this,true)">a) tiny</button><button class="opt-btn" onclick="answer(23,this,false)">b) huge</button><button class="opt-btn" onclick="answer(23,this,false)">c) large</button><button class="opt-btn" onclick="answer(23,this,false)">d) big</button></div><button class="hint-btn" onclick="showHint(23)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-23">Huge, large and big all mean the OPPOSITE of small. Only one means even smaller!</div><div class="feedback" id="fb-23"></div></div>
+
+  <div class="level-card" id="card-24"><div class="card-top-bar bar-purple"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-purple">LVL 24<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 24 · SYNONYM CITY</div><div class="level-title">Fast Synonym!</div></div></div><p class="question-text">Which is a synonym of "fast"?</p><div class="options" id="opts-24"><button class="opt-btn" onclick="answer(24,this,true)">a) quick</button><button class="opt-btn" onclick="answer(24,this,false)">b) slow</button><button class="opt-btn" onclick="answer(24,this,false)">c) late</button><button class="opt-btn" onclick="answer(24,this,false)">d) dull</button></div><button class="hint-btn" onclick="showHint(24)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-24">"Slow" and "late" are opposites of fast. "Dull" means boring. Which one means speedy?</div><div class="feedback" id="fb-24"></div></div>
+</div>
+
+<!-- ZONE 5 -->
+<div class="section-header">&#9889; ZONE 5 — ARTICLES, PREPOSITIONS &amp; CONJUNCTIONS (Levels 25–33)</div>
+<div class="levels-grid">
+  <div class="level-card" id="card-25"><div class="card-top-bar bar-lime"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-lime">LVL 25<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 25 · ARTICLE ARENA</div><div class="level-title">Honest Man!</div></div></div><p class="question-text">Which is the correct article?<br>He is ___ honest man.</p><div class="options" id="opts-25"><button class="opt-btn" onclick="answer(25,this,false)">a) a</button><button class="opt-btn" onclick="answer(25,this,true)">b) an</button><button class="opt-btn" onclick="answer(25,this,false)">c) the</button><button class="opt-btn" onclick="answer(25,this,false)">d) no article</button></div><button class="hint-btn" onclick="showHint(25)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-25">The "h" in "honest" is silent — it sounds like a vowel. Say it out loud: "an honest man".</div><div class="feedback" id="fb-25"></div></div>
+
+  <div class="level-card" id="card-26"><div class="card-top-bar bar-lime"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-lime">LVL 26<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 26 · ARTICLE ARENA</div><div class="level-title">The Sun!</div></div></div><p class="question-text">Which is the correct article?<br>I saw ___ sun rising.</p><div class="options" id="opts-26"><button class="opt-btn" onclick="answer(26,this,false)">a) a</button><button class="opt-btn" onclick="answer(26,this,false)">b) an</button><button class="opt-btn" onclick="answer(26,this,true)">c) the</button><button class="opt-btn" onclick="answer(26,this,false)">d) no article</button></div><button class="hint-btn" onclick="showHint(26)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-26">Use "the" for unique things — there is only ONE sun!</div><div class="feedback" id="fb-26"></div></div>
+
+  <div class="level-card" id="card-27"><div class="card-top-bar bar-lime"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-lime">LVL 27<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 27 · PREPOSITION PORTAL</div><div class="level-title">Jumped the Wall!</div></div></div><p class="question-text">Which preposition is correct?<br>He jumped ___ the wall.</p><div class="options" id="opts-27"><button class="opt-btn" onclick="answer(27,this,true)">a) over</button><button class="opt-btn" onclick="answer(27,this,false)">b) in</button><button class="opt-btn" onclick="answer(27,this,false)">c) on</button><button class="opt-btn" onclick="answer(27,this,false)">d) of</button></div><button class="hint-btn" onclick="showHint(27)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-27">Picture someone jumping UP and ACROSS from one side to the other.</div><div class="feedback" id="fb-27"></div></div>
+
+  <div class="level-card" id="card-28"><div class="card-top-bar bar-lime"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-lime">LVL 28<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 28 · PREPOSITION PORTAL</div><div class="level-title">Ball in the Box!</div></div></div><p class="question-text">Which preposition is correct?<br>The ball is ___ the box.</p><div class="options" id="opts-28"><button class="opt-btn" onclick="answer(28,this,true)">a) inside</button><button class="opt-btn" onclick="answer(28,this,false)">b) run</button><button class="opt-btn" onclick="answer(28,this,false)">c) eat</button><button class="opt-btn" onclick="answer(28,this,false)">d) red</button></div><button class="hint-btn" onclick="showHint(28)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-28">Two options are verbs, one is an adjective. Only one shows WHERE the ball is!</div><div class="feedback" id="fb-28"></div></div>
+
+  <div class="level-card" id="card-29"><div class="card-top-bar bar-red"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-red">LVL 29<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 29 · CONJUNCTION CASTLE</div><div class="level-title">Stayed Home!</div></div></div><p class="question-text">Which conjunction fits?<br>We stayed home ___ it rained heavily.</p><div class="options" id="opts-29"><button class="opt-btn" onclick="answer(29,this,true)">a) because</button><button class="opt-btn" onclick="answer(29,this,false)">b) and</button><button class="opt-btn" onclick="answer(29,this,false)">c) but</button><button class="opt-btn" onclick="answer(29,this,false)">d) or</button></div><button class="hint-btn" onclick="showHint(29)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-29">The second clause gives a REASON. Which conjunction introduces a reason or cause?</div><div class="feedback" id="fb-29"></div></div>
+
+  <div class="level-card" id="card-30"><div class="card-top-bar bar-red"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-red">LVL 30<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 30 · CONJUNCTION CASTLE</div><div class="level-title">But I Was Sick!</div></div></div><p class="question-text">Which conjunction fits?<br>I wanted to go out ___ I was sick.</p><div class="options" id="opts-30"><button class="opt-btn" onclick="answer(30,this,true)">a) but</button><button class="opt-btn" onclick="answer(30,this,false)">b) and</button><button class="opt-btn" onclick="answer(30,this,false)">c) or</button><button class="opt-btn" onclick="answer(30,this,false)">d) so</button></div><button class="hint-btn" onclick="showHint(30)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-30">The two ideas are in CONTRAST. Which conjunction shows opposition or contradiction?</div><div class="feedback" id="fb-30"></div></div>
+
+  <div class="level-card" id="card-31"><div class="card-top-bar bar-red"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-red">LVL 31<br>&#128308; BOSS</div><div class="level-title-block"><div class="level-num">LEVEL 31 · PASSIVE PALACE</div><div class="level-title">Passive Voice!</div></div></div><p class="question-text">Which is the correct passive voice?<br>"They write letters."</p><div class="options" id="opts-31"><button class="opt-btn" onclick="answer(31,this,true)">a) Letters are written by them.</button><button class="opt-btn" onclick="answer(31,this,false)">b) Letters is written by them.</button><button class="opt-btn" onclick="answer(31,this,false)">c) Letters were written by them.</button><button class="opt-btn" onclick="answer(31,this,false)">d) Letters was written by them.</button></div><button class="hint-btn" onclick="showHint(31)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-31">Original is PRESENT tense. "Letters" is plural so use "are". "Were/was" are past tense — wrong!</div><div class="feedback" id="fb-31"></div></div>
+
+  <div class="level-card" id="card-32"><div class="card-top-bar bar-white"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-white">LVL 32<br>&#128128; FINAL</div><div class="level-title-block"><div class="level-num">LEVEL 32 · SPELLING STORM</div><div class="level-title">Spell It Right!</div></div></div><p class="question-text">Which is the correct spelling?</p><div class="options" id="opts-32"><button class="opt-btn" onclick="answer(32,this,false)">a) goverment</button><button class="opt-btn" onclick="answer(32,this,true)">b) government</button><button class="opt-btn" onclick="answer(32,this,false)">c) governmant</button><button class="opt-btn" onclick="answer(32,this,false)">d) govenment</button></div><button class="hint-btn" onclick="showHint(32)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-32">Say it slowly: gov-ERN-ment. "Govern" + "ment" — don't forget the hidden N!</div><div class="feedback" id="fb-32"></div></div>
+
+  <div class="level-card" id="card-33"><div class="card-top-bar bar-white"></div><div class="solved-stamp">&#10003; PASSED</div><div class="level-header"><div class="level-badge badge-white">LVL 33<br>&#128128; FINAL</div><div class="level-title-block"><div class="level-num">LEVEL 33 · SPELLING STORM</div><div class="level-title">Final Boss Spelling!</div></div></div><p class="question-text">Which is the correct spelling?</p><div class="options" id="opts-33"><button class="opt-btn" onclick="answer(33,this,false)">a) occassion</button><button class="opt-btn" onclick="answer(33,this,true)">b) occasion</button><button class="opt-btn" onclick="answer(33,this,false)">c) ocassion</button><button class="opt-btn" onclick="answer(33,this,false)">d) occation</button></div><button class="hint-btn" onclick="showHint(33)">&#128161; HINT (-5 XP)</button><div class="hint-text" id="hint-33">ONE "c", ONE "s": oc-ca-sion. Not "occassion", not "occation"!</div><div class="feedback" id="fb-33"></div></div>
+</div>
+
+</div><!-- end quiz-area -->
+
+<script>
+// ============================================================
+// IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT URL BELOW
+// Follow the setup instructions in the README to get this URL
+// ============================================================
+var SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+// Game state
+var xp = 0;
+var lives = 3;
+var solvedCount = 0;
+var MAX_XP = 825;
+var TOTAL_Q = 33;
+var answered = [];
+var playerName = '';
+var playerClass = '';
+var playerSection = '';
+var startTime = null;
+
+for (var i = 0; i < TOTAL_Q; i++) { answered.push(false); }
+
+// ===== SPLASH / START =====
+function startQuiz() {
+  var nameVal = document.getElementById('input-name').value.trim();
+  var classVal = document.getElementById('input-class').value.trim();
+  var sectionVal = document.getElementById('input-section').value.trim();
+  var errEl = document.getElementById('name-error');
+  var nameInput = document.getElementById('input-name');
+
+  if (!nameVal) {
+    nameInput.className = 'name-input error';
+    errEl.className = 'input-error show';
+    return;
+  }
+  nameInput.className = 'name-input';
+  errEl.className = 'input-error';
+
+  playerName = nameVal;
+  playerClass = classVal || '—';
+  playerSection = sectionVal || '—';
+  startTime = new Date();
+
+  document.getElementById('player-display-name').textContent = playerName + (classVal ? '  |  Class ' + classVal + (sectionVal ? ' ' + sectionVal : '') : '');
+  document.getElementById('splash-screen').className = 'hidden';
+  document.getElementById('quiz-area').className = 'visible';
+  window.scrollTo(0, 0);
+}
+
+// Allow Enter key on name field
+document.getElementById('input-name').addEventListener('keydown', function(e) {
+  if (e.keyCode === 13) { startQuiz(); }
+});
+
+// ===== ANSWER HANDLER =====
+var correctFB = ['<span class="fb-title">PASSED! +25 XP</span>Happiness is an abstract noun — you cannot touch or see it. Feelings, ideas and qualities are abstract nouns.','<span class="fb-title">PASSED! +25 XP</span>A team is a collective noun — it names a GROUP of people. Honesty and love are abstract nouns. Jaipur is a proper noun.','<span class="fb-title">PASSED! +25 XP</span>Ramesh is a proper noun — the specific name of a person, always with a capital letter!','<span class="fb-title">PASSED! +25 XP</span>"We" is a pronoun — it replaces a noun. Teacher, school and book are all nouns.','<span class="fb-title">PASSED! +25 XP</span>"Red" is an adjective — it describes colour. Run and eat are verbs. Quickly is an adverb.','<span class="fb-title">PASSED! +25 XP</span>"Slowly" is an adverb — it describes HOW something is done. Table, teacher and book are nouns.','<span class="fb-title">PASSED! +25 XP</span>"Sing" is a verb — it is an action you can DO. Boy, chair and ball are nouns.','<span class="fb-title">PASSED! +25 XP</span>"Geese" is the irregular plural of goose. English has many irregular plurals: foot/feet, tooth/teeth, goose/geese.','<span class="fb-title">PASSED! +25 XP</span>"Cacti" is the Latin plural of cactus. Latin words ending in -us often become -i in plural.','<span class="fb-title">PASSED! +25 XP</span>"They are playing" is present continuous — happening RIGHT NOW. Structure: am/is/are + verb-ing.','<span class="fb-title">PASSED! +25 XP</span>"She had eaten" is past perfect — uses "had" + past participle for something completed before another past event.','<span class="fb-title">PASSED! +25 XP</span>"He will have done" is future perfect — uses "will have" + past participle.','<span class="fb-title">PASSED! +25 XP</span>"Are" is correct because "they" is plural. Am=I, Is=he/she/it, Are=you/we/they.','<span class="fb-title">PASSED! +25 XP</span>"Wrote" is the simple past of the irregular verb "write". The word "yesterday" tells us past tense.','<span class="fb-title">PASSED! +25 XP</span>"Coward" is the opposite of brave. Strong, happy and clever do not specifically contrast with bravery.','<span class="fb-title">PASSED! +25 XP</span>"Clever" is a synonym of intelligent — both mean having a sharp, quick mind.','<span class="fb-title">PASSED! +25 XP</span>"All of these" is correct! Defeat, loss and failure are all valid antonyms of victory.','<span class="fb-title">PASSED! +25 XP</span>"Poor" is the opposite of rich. Weak=opposite of strong. Sad=opposite of happy. Ugly=opposite of beautiful.','<span class="fb-title">PASSED! +25 XP</span>"Compress" means to squeeze — the opposite of expand. Increase, grow and rise all mean the same as expand.','<span class="fb-title">PASSED! +25 XP</span>"Happier" is comparative — comparing TWO things. Drop the Y and add -ier. "Happiest" is superlative.','<span class="fb-title">PASSED! +25 XP</span>"Best" is the superlative of "good". Irregular: good → better → best. "Goodest" is never correct!','<span class="fb-title">PASSED! +25 XP</span>"Mad" is a synonym of angry. Glad and happy are opposite feelings. Weak describes physical strength.','<span class="fb-title">PASSED! +25 XP</span>"Tiny" is a synonym of small — actually even smaller! Huge, large and big all mean the opposite.','<span class="fb-title">PASSED! +25 XP</span>"Quick" is a synonym of fast. Slow and late are opposites. Dull means boring — unrelated to speed.','<span class="fb-title">PASSED! +25 XP</span>"An" is correct because the H in "honest" is silent — it sounds like a vowel sound. "An honest man."','<span class="fb-title">PASSED! +25 XP</span>"The" is correct because the sun is unique — there is only one! Use "the" for one-of-a-kind things.','<span class="fb-title">PASSED! +25 XP</span>"Over" is correct — jumping over means going UP and ACROSS from one side to the other.','<span class="fb-title">PASSED! +25 XP</span>"Inside" is correct — it shows WHERE the ball is. Run and eat are verbs. Red is an adjective.','<span class="fb-title">PASSED! +25 XP</span>"Because" introduces a REASON or cause. We stayed home FOR A REASON — the heavy rain.','<span class="fb-title">PASSED! +25 XP</span>"But" shows CONTRAST between opposing ideas — wanting to go out vs. being sick.','<span class="fb-title">PASSED! +25 XP</span>"Letters are written by them" — present tense, plural subject. "Were/was" are past tense — wrong here.','<span class="fb-title">PASSED! +25 XP</span>Government = govern + ment. Say it: gov-ERN-ment. The hidden N after "gover" is the key!','<span class="fb-title">PASSED! +25 XP</span>Occasion = oc-ca-sion. ONE "c", ONE "s". Not occassion, not occation. Well done — you finished the Grammar Obby!'];
+
+var wrongFB = ['<span class="fb-title">OOPS! FELL OFF THE PLATFORM!</span>Abstract nouns are things you CANNOT touch or see. Chair, river and book are physical things. Happiness is a FEELING — that makes it abstract!','<span class="fb-title">OOPS! WRONG BLOCK!</span>A collective noun names a GROUP as one unit. Honesty and love are abstract nouns. Jaipur is a proper noun. Only "team" groups people together.','<span class="fb-title">OOPS! RESPAWNING...</span>A proper noun is a SPECIFIC name — always with a capital letter. Girl, boy and city are general common nouns. Ramesh names a specific person!','<span class="fb-title">OOPS! NOT A PRONOUN!</span>A pronoun replaces a noun. "We" replaces a group of people. Teacher, school and book are NOUNS — they name things, they don\'t replace them.','<span class="fb-title">OOPS! CHECK YOUR WORD TYPES!</span>Red is an adjective — it describes colour. Run and eat are VERBS. Quickly is an ADVERB. Adjectives describe nouns.','<span class="fb-title">OOPS! THAT IS NOT AN ADVERB!</span>An adverb describes HOW, WHEN or WHERE. Table, teacher and book are NOUNS. Only "slowly" describes a verb — it tells us how something is done.','<span class="fb-title">OOPS! THAT IS NOT A VERB!</span>Boy, chair and ball are NOUNS. Only "sing" is something you can DO. Test it: can you "sing"? Yes! Can you "boy"? No!','<span class="fb-title">OOPS! IRREGULAR PLURAL!</span>The plural of goose is GEESE — the vowel changes completely. You cannot add -s! Think: foot→feet, tooth→teeth, goose→geese.','<span class="fb-title">OOPS! LATIN PLURAL TRAP!</span>The plural of cactus is CACTI. Latin words ending in -us become -i in plural: cactus/cacti, focus/foci.','<span class="fb-title">OOPS! WRONG TENSE!</span>Present continuous uses "are + playing" (-ing form) to show something happening NOW. "Played" is past. "Will play" is future. "Have played" is present perfect.','<span class="fb-title">OOPS! CHECK YOUR HAD!</span>Past perfect always uses "had" + past participle. "She had eaten" — "had" is the key! "Was eating" is past continuous. "Will eat" is future.','<span class="fb-title">OOPS! WILL HAVE IS THE KEY!</span>Future perfect uses "will have" + past participle. "Has done" = present perfect. "Had done" = past perfect. Look for "will have" as your signal.','<span class="fb-title">OOPS! SUBJECT-VERB MISMATCH!</span>"They" is plural. Am=I, Is=he/she/it, Are=you/we/they. Using "is" with "they" is a very common error!','<span class="fb-title">OOPS! IRREGULAR VERB!</span>"Yesterday" = past tense. "Write" is irregular — past form is "wrote", not "writed"! Irregular verbs must be memorised.','<span class="fb-title">OOPS! BRAVE OPPOSITE!</span>"Coward" is the specific opposite of brave. Strong is about power, happy is about mood, clever is about intelligence — none contrast with bravery!','<span class="fb-title">OOPS! SYNONYM CHECK!</span>Foolish is the OPPOSITE of intelligent. Lazy describes work habits. Dull means slow. "Clever" is the only one that means the same as intelligent.','<span class="fb-title">OOPS! ALL OPTIONS!</span>Defeat, loss AND failure are all opposite to victory — so "all of these" is correct! Always check every option before choosing.','<span class="fb-title">OOPS! MATCH THE MEANING!</span>"Poor" is the direct opposite of rich (about money). Weak=opposite of strong. Sad=opposite of happy. Match the antonym to the EXACT meaning!','<span class="fb-title">OOPS! EXPAND OPPOSITE!</span>Increase, grow and rise all mean the same as expand. Only "compress" means the opposite — to squeeze or make smaller.','<span class="fb-title">OOPS! COMPARATIVE VS SUPERLATIVE!</span>Comparative uses -er for short words. "Happiest" is superlative. "More happy" is grammatically wrong. Drop Y, add -IER = happier.','<span class="fb-title">OOPS! IRREGULAR SUPERLATIVE!</span>Good → better → best. "Goodest" is NEVER correct. "Most good" is also wrong. Irregular forms must be memorised!','<span class="fb-title">OOPS! EMOTION CHECK!</span>Glad and happy are OPPOSITE feelings to angry. Weak describes physical strength. "Mad" is the only synonym here.','<span class="fb-title">OOPS! SIZE SYNONYM!</span>Huge, large and big all mean the OPPOSITE of small. "Tiny" means even smaller — the only synonym here!','<span class="fb-title">OOPS! SPEED SYNONYM!</span>"Slow" and "late" are antonyms of fast. "Dull" means boring. "Quick" is the only one that means the same as fast.','<span class="fb-title">OOPS! VOWEL SOUND RULE!</span>The H in "honest" is SILENT — it sounds like a vowel. So we say "an honest man". If the H were not silent (like "hat"), we would say "a hat".','<span class="fb-title">OOPS! UNIQUE NOUNS!</span>There is only ONE sun — it is unique! We always use "the" for unique, one-of-a-kind things like the sun, the moon, the earth.','<span class="fb-title">OOPS! PICTURE THE JUMP!</span>Jumping over means going UP and ACROSS. "On" means resting on top. "In" means inside. "Of" shows belonging. Only "over" captures clearing the wall.','<span class="fb-title">OOPS! SPOT THE PREPOSITION!</span>Run and eat are VERBS. Red is an ADJECTIVE. None of these show location! Only "inside" tells us WHERE the ball is.','<span class="fb-title">OOPS! CAUSE AND EFFECT!</span>The second clause gives the REASON for staying home. "Because" introduces causes. "And" joins similar ideas. "But" shows contrast. "Or" gives choices.','<span class="fb-title">OOPS! SPOT THE CONTRAST!</span>Wanting to go out and being sick are OPPOSITE situations. "But" shows contrast. "And" joins similar ideas. "Or" gives alternatives.','<span class="fb-title">OOPS! PASSIVE VOICE RULES!</span>Original is PRESENT tense. "Letters" is PLURAL so we need "are". "Were" and "was" are PAST tense — completely wrong tense here!','<span class="fb-title">OOPS! HIDDEN N ALERT!</span>Government = gov-ERN-ment. There is a hidden N after "gover" that most people miss. Say each syllable to remember it.','<span class="fb-title">OOPS! ONE C, ONE S!</span>Occasion = oc-ca-sion. ONE "c" and ONE "s". "Occassion" has double S (wrong). "Occation" replaces S with T (wrong). oc-ca-sion!'];
+
+function answer(level, btn, isCorrect) {
+  var idx = level - 1;
+  if (answered[idx]) return;
+  answered[idx] = true;
+
+  var allBtns = document.querySelectorAll('#opts-' + level + ' .opt-btn');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].onclick = null;
+    allBtns[i].className = 'opt-btn state-disabled';
+  }
+  btn.className = isCorrect ? 'opt-btn state-correct' : 'opt-btn state-wrong';
+
+  var fb = document.getElementById('fb-' + level);
+  if (isCorrect) {
+    fb.innerHTML = correctFB[idx];
+    fb.className = 'feedback visible fb-correct';
+    xp += 25;
+    solvedCount++;
+    document.getElementById('card-' + level).className = 'level-card solved';
+    document.getElementById('solved-count').textContent = solvedCount;
+    updateXP();
+    if (solvedCount === TOTAL_Q) { setTimeout(function() { endGame(true); }, 900); }
+  } else {
+    fb.innerHTML = wrongFB[idx];
+    fb.className = 'feedback visible fb-wrong';
+    loseLife();
+  }
+}
+
+function loseLife() {
+  if (lives <= 0) return;
+  var heartEl = document.getElementById('h' + lives);
+  if (heartEl) { heartEl.className = 'heart-lost'; heartEl.innerHTML = '&#128420;'; }
+  lives--;
+  if (lives <= 0) { setTimeout(function() { endGame(false); }, 700); }
+}
+
+function updateXP() {
+  var pct = Math.min((xp / MAX_XP) * 100, 100);
+  document.getElementById('xp-bar').style.width = pct + '%';
+  document.getElementById('xp-text').textContent = xp + ' / ' + MAX_XP + ' XP';
+}
+
+function showHint(level) {
+  var hint = document.getElementById('hint-' + level);
+  if (hint.className.indexOf('visible') === -1) {
+    xp = Math.max(0, xp - 5);
+    updateXP();
+    hint.className = 'hint-text visible';
+  } else {
+    hint.className = 'hint-text';
+  }
+}
+
+// ===== END GAME & SUBMIT TO GOOGLE SHEETS =====
+function endGame(won) {
+  var endTime = new Date();
+  var timeTaken = startTime ? Math.round((endTime - startTime) / 1000) : 0;
+  var mins = Math.floor(timeTaken / 60);
+  var secs = timeTaken % 60;
+  var timeStr = mins + 'm ' + secs + 's';
+
+  if (won) {
+    document.getElementById('win-player-name').textContent = '&#127881; Well done, ' + playerName + '!';
+    document.getElementById('win-xp-text').textContent = 'FINAL XP: ' + xp + ' / ' + MAX_XP;
+    document.getElementById('win-score-text').textContent = 'SCORE: ' + solvedCount + ' / ' + TOTAL_Q + ' CORRECT  |  TIME: ' + timeStr;
+    document.getElementById('win-screen').className = 'overlay visible';
+    submitToSheet(won, timeStr, 'submit-status');
+  } else {
+    document.getElementById('gameover-screen').className = 'overlay visible';
+    submitToSheet(won, timeStr, 'submit-status-go');
+  }
+}
+
+function submitToSheet(won, timeStr, statusId) {
+  var statusEl = document.getElementById(statusId);
+
+  if (!SHEET_URL || SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+    statusEl.className = 'submit-status';
+    statusEl.textContent = '';
+    return;
+  }
+
+  statusEl.className = 'submit-status sending';
+  statusEl.textContent = '&#128190; Saving your results...';
+
+  var now = new Date();
+  var dateStr = now.getDate() + '/' + (now.getMonth()+1) + '/' + now.getFullYear();
+  var timeOfDay = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+
+  var payload = {
+    name:    playerName,
+    class:   playerClass,
+    section: playerSection,
+    score:   solvedCount,
+    total:   TOTAL_Q,
+    xp:      xp,
+    maxXp:   MAX_XP,
+    result:  won ? 'Completed' : 'Game Over',
+    time:    timeStr,
+    date:    dateStr,
+    clock:   timeOfDay
+  };
+
+  var img = new Image();
+  var params = '';
+  for (var key in payload) {
+    params += (params ? '&' : '?') + key + '=' + encodeURIComponent(payload[key]);
+  }
+
+  img.onload = function() {
+    statusEl.className = 'submit-status sent';
+    statusEl.textContent = '&#10003; Results saved to teacher dashboard!';
+  };
+  img.onerror = function() {
+    statusEl.className = 'submit-status sent';
+    statusEl.textContent = '&#10003; Results saved!';
+  };
+  img.src = SHEET_URL + params;
+}
+
+function showWin()     { endGame(true);  }
+function showGameOver(){ endGame(false); }
+function resetGame()   { window.location.reload(); }
+</script>
+</body>
+</html>
