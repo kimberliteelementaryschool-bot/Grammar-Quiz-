@@ -796,7 +796,7 @@ function endGame(won) {
 function submitToSheet(won, timeStr, accuracy, statusId) {
   var statusEl = document.getElementById(statusId);
 
-  if (!SHEET_URL || SHEET_URL === 'https://script.google.com/macros/s/AKfycbw9oZM1jAjEorWlH0qqVwXEYa_wPKyX6ArvHokQO0nMq0x3h3XNuzGe7SWoIXs3m1od/exec') {
+  if (!SHEET_URL || SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
     statusEl.className = 'submit-status';
     statusEl.textContent = '';
     return;
@@ -847,4 +847,3 @@ function resetGame()   { window.location.reload(); }
 </script>
 </body>
 </html>
-
