@@ -1172,7 +1172,7 @@ function doRetake() {
 // ============================================================
 function submitToSheet(timeStr, pct, score, tot) {
   var note = document.getElementById('sub-note');
-  if (!SHEET_URL || SHEET_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') { note.textContent=''; return; }
+  if (!SHEET_URL || SHEET_URL==='https://script.google.com/macros/s/AKfycbwd5ek9vbhXG4AqNaa7TpmMZ5K5D4SUzjRn8Xf3M8iIWID5Dn9EGRh6Z2OtHN5W4UfE/exec') { note.textContent=''; return; }
 
   note.className = 'sub-note sending';
   note.textContent = 'Saving results...';
