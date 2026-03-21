@@ -639,6 +639,24 @@ body {
   padding-bottom: 120px;
 }
 
+
+/* ===== LIVES & XP STYLES ===== */
+.hud-lives { display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; gap:4px; }
+.hud-lbl { font-family:'Courier New',monospace; font-size:9px; color:var(--dim); margin-right:4px; text-transform:uppercase; letter-spacing:1px; }
+.heart { font-size:20px; transition:all 0.3s; }
+.heart-lost { font-size:20px; opacity:0.2; filter:grayscale(1); }
+.animals .hud-lbl, .adventure .hud-lbl { color:#a08060; }
+.hud-xp { flex:1; min-width:120px; }
+
+/* XP fill glow per theme */
+.animals .hud-fill  { box-shadow: 0 0 6px #e07b3a; }
+.adventure .hud-fill { box-shadow: 0 0 6px #1a9648; }
+.gaming .hud-fill    { box-shadow: 0 0 8px #ffdd00; }
+
+/* Bounce for hearts when lost */
+@keyframes heartLost { 0%{transform:scale(1);} 50%{transform:scale(1.4);} 100%{transform:scale(0.8) translateY(0);opacity:0.2;} }
+.heart-losing { animation: heartLost 0.4s ease forwards; }
+
 </style>
 </head>
 <body>
@@ -656,8 +674,8 @@ body {
   </div>
   <div class="splash-school">Kimberlite Elementary School</div>
   <div class="splash-tagline">Jaipur &middot; Shaping Futures with Passionate Education</div>
-  <div class="splash-title">&#128218; GRAMMAR ASSESSMENT</div>
-  <div class="splash-sub">Classes I &ndash; VI &middot; Auto-marked &middot; Instant results</div>
+  <div class="splash-title">&#127918; GRAMMAR QUEST</div>
+  <div class="splash-sub">Classes I &ndash; VI &middot; 3 Lives &middot; XP &middot; Earn Your Badge!</div>
   <div class="theme-badges">
     <span class="tbadge tbadge-a">&#127920; Classes I &amp; II</span>
     <span class="tbadge tbadge-b">&#127807; Classes III &amp; IV</span>
@@ -711,7 +729,7 @@ body {
       <div class="f-err" id="fp-err">&#9888; Please enter parent's phone number</div>
     </div>
 
-    <button class="go-btn" onclick="beginTest()">&#9654; START MY TEST!</button>
+    <button class="go-btn" onclick="beginTest()">&#9654; START THE QUEST!</button>
   </div>
 </div>
 
@@ -719,6 +737,23 @@ body {
      TEST AREA
 ============================================================ -->
 <div id="test-wrap">
+  <!-- Game Over overlay -->
+  <div class="overlay" id="gameover-ov">
+    <span class="bounce" id="go-emoji">&#128128;</span>
+    <div class="ov-title" id="go-title" style="color:#ff4444;text-shadow:2px 2px 0 #aa0000;">YOU RAN OUT OF LIVES!</div>
+    <div class="ov-name" id="go-name"></div>
+    <div class="ov-msg" id="go-msg" style="margin-bottom:16px;"></div>
+    <div class="score-card">
+      <div class="sc-row"><span class="sc-label">&#127919; SCORE SO FAR</span><span class="sc-val" id="go-score">0/0</span></div>
+      <div class="sc-row"><span class="sc-label">&#9889; XP EARNED</span><span class="sc-val" id="go-xp">0 XP</span></div>
+      <div class="sc-row"><span class="sc-label">&#9201; TIME</span><span class="sc-val" id="go-time">—</span></div>
+    </div>
+    <div class="sub-note" id="sub-note-go"></div>
+    <div class="ov-btns">
+      <button class="btn-main" onclick="doRetake()">&#8635; Try Again</button>
+    </div>
+  </div>
+
   <!-- Results overlay -->
   <div class="overlay" id="result-ov">
     <span class="bounce" id="ov-emoji">&#127881;</span>
@@ -727,6 +762,7 @@ body {
     <span class="ov-badge" id="ov-badge">Well Done!</span>
     <div class="score-card">
       <div class="sc-row"><span class="sc-label">&#127919; SCORE</span><span class="sc-val" id="sc-score">0/0</span></div>
+      <div class="sc-row"><span class="sc-label">&#9889; XP EARNED</span><span class="sc-val" id="sc-xp">0 XP</span></div>
       <div class="sc-row"><span class="sc-label">&#128200; ACCURACY</span><span class="sc-val" id="sc-pct">0%</span></div>
       <div class="sc-row"><span class="sc-label">&#9201; TIME TAKEN</span><span class="sc-val" id="sc-time">—</span></div>
       <div class="sc-row"><span class="sc-label">&#127891; CLASS</span><span class="sc-val" id="sc-class">I</span></div>
@@ -760,11 +796,17 @@ body {
   <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
   <div class="p-banner" id="p-banner"></div>
   <div class="hud">
-    <div class="hud-prog">
-      <div class="hud-prog-label"><span>&#9889; PROGRESS</span><span id="hud-txt">0 / 0 answered</span></div>
+    <div class="hud-lives">
+      <span class="hud-lbl">LIVES</span>
+      <span id="life1" class="heart">&#10084;&#65039;</span>
+      <span id="life2" class="heart">&#10084;&#65039;</span>
+      <span id="life3" class="heart">&#10084;&#65039;</span>
+    </div>
+    <div class="hud-xp">
+      <div class="hud-prog-label"><span>&#9889; XP</span><span id="hud-xp-txt">0 XP</span></div>
       <div class="hud-track"><div class="hud-fill" id="hud-fill"></div></div>
     </div>
-    <div class="hud-score">&#10003; <span id="hud-correct">0</span> correct</div>
+    <div class="hud-score">&#10003; <span id="hud-correct">0</span>/<span id="hud-total">0</span></div>
   </div>
 
   <!-- Questions -->
@@ -775,7 +817,7 @@ body {
 // ============================================================
 // GOOGLE SHEETS URL
 // ============================================================
-var SHEET_URL = 'https://script.google.com/macros/s/AKfycbwd5ek9vbhXG4AqNaa7TpmMZ5K5D4SUzjRn8Xf3M8iIWID5Dn9EGRh6Z2OtHN5W4UfE/exec';
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbyDNcU611m7qHTxipJ8zXGzpiHxe8lxsw4X6Rrgs6_kvWAbmt4Tr4XTbcZo3C7uRTNe/exec';
 
 // ============================================================
 // PLAYER STATE
@@ -783,13 +825,15 @@ var SHEET_URL = 'https://script.google.com/macros/s/AKfycbwd5ek9vbhXG4AqNaa7TpmM
 var pName = '', pAge = 0, pClass = 0, pSchool = '', pPhone = '';
 var startTime = null, timerInt = null;
 var answers = [], total = 0, correct = 0;
+var lives = 3, xp = 0, MAX_XP = 0;
+var XP_PER_CORRECT = 25, XP_WRONG_PENALTY = 5;
 
 // ============================================================
 // TEST DATA
 // ============================================================
 var TESTS = {
   1: { name:'Class I Grammar Test', theme:'animals', emoji:'&#127920;', sections:[
-    { label:'Section A — Choose the Correct Answer', qs:[
+    { label:'&#127381; ZONE 1 — Word Warriors', qs:[
       { q:'Which of these is a noun?', type:'mcq', opts:['run','cat','jump','big'], ans:1, explain:'"Cat" is a noun — it names an animal. "Run" and "jump" are action words (verbs). "Big" describes something (adjective).' },
       { q:'Which word is a verb?', type:'mcq', opts:['chair','eat','red','school'], ans:1, explain:'"Eat" is a verb — it is an action you do. Chair and school are nouns (things). Red is an adjective (colour).' },
       { q:'Which is the correct sentence?', type:'mcq', opts:['she is my friend.','She is my friend.','She Is My Friend.','she Is My Friend.'], ans:1, explain:'Every sentence must start with ONE capital letter. Only option b starts correctly.' },
@@ -797,7 +841,7 @@ var TESTS = {
       { q:'Pick the correct plural:', type:'mcq', opts:['dog','dogs','doges',"dog's"], ans:1, explain:'We add -s to make most nouns plural. "Dog\'s" shows ownership — not plural. "Doges" is a made-up spelling.' },
       { q:'Change the gender of: Uncle', type:'mcq', opts:['he','aunt','cousin','nephew'], ans:1, explain:'The feminine form of uncle is aunt. Uncle is the male word, aunt is the female equivalent.' }
     ]},
-    { label:'Section B — Tick the Correct Option', qs:[
+    { label:'&#127381; ZONE 2 — Fill the Gap!', qs:[
       { q:'The sun ____ in the sky.', type:'fitb', opts:['shine','shines'], ans:1, explain:'"Shines" is correct. The sun is singular (it), so we add -s to the verb in present tense.' },
       { q:'My father is ____ doctor.', type:'fitb', opts:['a','an'], ans:0, explain:'"A" is correct because "doctor" starts with a consonant sound (d). Use "an" before vowel sounds.' },
       { q:'Riya ____ playing with her doll.', type:'fitb', opts:['is','are'], ans:0, explain:'"Is" is correct — Riya is one person (singular she/he/it = is).' },
@@ -808,7 +852,7 @@ var TESTS = {
   ]},
 
   2: { name:'Class II Grammar Test', theme:'animals', emoji:'&#128024;', sections:[
-    { label:'Section A — Choose the Correct Answer', qs:[
+    { label:'&#127381; ZONE 1 — Word Warriors', qs:[
       { q:'Which is a noun?', type:'mcq', opts:['sing','boy','red','quickly'], ans:1, explain:'"Boy" names a person — that makes it a noun. Sing is a verb, red is an adjective, quickly is an adverb.' },
       { q:'Pick the verb:', type:'mcq', opts:['play','ball','tall','chair'], ans:0, explain:'"Play" is a verb — an action word. Ball and chair are nouns (things). Tall is an adjective (describing word).' },
       { q:'Which sentence is correct?', type:'mcq', opts:['He play football.','He plays football.'], ans:1, explain:'"He plays football" is correct. With he/she/it, we add -s to the verb in present tense.' },
@@ -816,7 +860,7 @@ var TESTS = {
       { q:'Opposite of "tall" is:', type:'mcq', opts:['short','fat','big','small'], ans:0, explain:'"Short" is the direct opposite of tall — both describe height.' },
       { q:'Which is a pronoun?', type:'mcq', opts:['mango','they','fast','jump'], ans:1, explain:'"They" is a pronoun — it replaces a noun (a group of people). Mango is a noun, fast is an adjective, jump is a verb.' }
     ]},
-    { label:'Section B — Fill in the Blanks', qs:[
+    { label:'&#127381; ZONE 2 — Fill the Gap!', qs:[
       { q:'She ____ reading a book.', type:'fitb', opts:['is','are'], ans:0, explain:'"Is" is correct — "she" is singular. Am=I, Is=he/she/it, Are=you/we/they.' },
       { q:'I have ____ orange.', type:'fitb', opts:['a','an'], ans:1, explain:'"An" is correct because "orange" starts with a vowel sound (o).' },
       { q:'The birds are ____ in the sky.', type:'fitb', opts:['fly','flying'], ans:1, explain:'"Flying" is correct — we use are + verb-ing (present continuous) for something happening now.' },
@@ -827,7 +871,7 @@ var TESTS = {
   ]},
 
   3: { name:'Class III Grammar Test', theme:'adventure', emoji:'&#127807;', sections:[
-    { label:'Section A — MCQs', qs:[
+    { label:'&#127381; ZONE 1 — Word Warriors', qs:[
       { q:'Which is an adjective?', type:'mcq', opts:['run','tall','chair','play'], ans:1, explain:'"Tall" is an adjective — it describes how something looks. Run and play are verbs. Chair is a noun.' },
       { q:'Which is a proper noun?', type:'mcq', opts:['city','boy','Delhi','dog'], ans:2, explain:'"Delhi" is a proper noun — the specific name of a city, always capitalised. City, boy and dog are general common nouns.' },
       { q:'Which is the correct sentence?', type:'mcq', opts:['We was happy.','We were happy.'], ans:1, explain:'"We were happy" is correct. "Was" goes with I/he/she/it. "Were" goes with you/we/they.' },
@@ -835,7 +879,7 @@ var TESTS = {
       { q:'Which is a preposition?', type:'mcq', opts:['in','boy','happy','runs'], ans:0, explain:'"In" is a preposition — it shows position (in the box, in school). Boy=noun, happy=adjective, runs=verb.' },
       { q:'Which word is spelled correctly?', type:'mcq', opts:['frend','friend','frind','freind'], ans:1, explain:'"Friend" is correct. Remember the pattern: fri-end. Say it in two parts to remember.' }
     ]},
-    { label:'Section B — Fill in the Blanks', qs:[
+    { label:'&#127381; ZONE 2 — Fill the Gap!', qs:[
       { q:'There ____ many books on the table.', type:'fitb', opts:['is','are'], ans:1, explain:'"Are" is correct — books is plural. Is=singular, Are=plural.' },
       { q:'My mother ____ cooking food.', type:'fitb', opts:['is','are'], ans:0, explain:'"Is" is correct — my mother is singular (she). Am=I, Is=he/she/it, Are=you/we/they.' },
       { q:'We went to the park ____ Sunday.', type:'fitb', opts:['in','on'], ans:1, explain:'"On" is used with specific days of the week (on Sunday, on Monday). "In" is for months and years.' },
@@ -846,7 +890,7 @@ var TESTS = {
   ]},
 
   4: { name:'Class IV Grammar Test', theme:'adventure', emoji:'&#128506;', sections:[
-    { label:'Choose the Correct Answer', qs:[
+    { label:'&#127381; ZONE 1 — Grammar Gauntlet', qs:[
       { q:'Which is a common noun?', type:'mcq', opts:['Delhi','Girl','Ganga','India'], ans:1, explain:'"Girl" is a common noun — it refers to any girl. Delhi, Ganga and India are proper nouns (specific names).' },
       { q:'Which is a proper noun?', type:'mcq', opts:['City','Boy','Jaipur','School'], ans:2, explain:'"Jaipur" is a proper noun — the specific name of a city. City, boy and school are general common nouns.' },
       { q:'Pick the abstract noun.', type:'mcq', opts:['Book','Honesty','Cat','Table'], ans:1, explain:'"Honesty" is an abstract noun — a quality you cannot touch or see. Book, cat and table are physical things.' },
@@ -881,7 +925,7 @@ var TESTS = {
   ]},
 
   5: { name:'Class V Grammar Test', theme:'gaming', emoji:'&#9889;', sections:[
-    { label:'Choose the Correct Answer', qs:[
+    { label:'&#127381; ZONE 1 — Grammar Gauntlet', qs:[
       { q:'Which is an abstract noun?', type:'mcq', opts:['Chair','Love','Dog','River'], ans:1, explain:'"Love" is an abstract noun — a feeling you cannot touch. Chair, dog and river are physical things.' },
       { q:'Which is a collective noun?', type:'mcq', opts:['Honesty','Team','Happiness','City'], ans:1, explain:'"Team" names a group of people — that is a collective noun. Honesty and happiness are abstract nouns.' },
       { q:'Which is a pronoun?', type:'mcq', opts:['He','Chair','Run','Red'], ans:0, explain:'"He" is a pronoun — it replaces a noun (a male person).' },
@@ -920,7 +964,7 @@ var TESTS = {
   ]},
 
   6: { name:'Class VI Grammar Test', theme:'gaming', emoji:'&#127918;', sections:[
-    { label:'Choose the Correct Answer', qs:[
+    { label:'&#127381; ZONE 1 — Grammar Gauntlet', qs:[
       { q:'Which is an abstract noun?', type:'mcq', opts:['Chair','Happiness','River','Book'], ans:1, explain:'"Happiness" is an abstract noun — a feeling you cannot touch or see.' },
       { q:'Which is a collective noun?', type:'mcq', opts:['Honesty','Team','Love','Jaipur'], ans:1, explain:'"Team" is a collective noun — it names a group of people.' },
       { q:'Which is a proper noun?', type:'mcq', opts:['Girl','Boy','Ramesh','City'], ans:2, explain:'"Ramesh" is a proper noun — the specific name of a person, always capitalised.' },
@@ -1015,7 +1059,7 @@ function beginTest() {
   if (!ok) return;
 
   pName=name; pAge=parseInt(age); pClass=parseInt(cls); pPhone=phone;
-  startTime=new Date(); answers=[]; correct=0;
+  startTime=new Date(); answers=[]; correct=0; lives=3; xp=0;
 
   buildTest(pClass);
   document.getElementById('splash').className='gone';
@@ -1031,9 +1075,15 @@ function buildTest(cls) {
   var test = TESTS[cls];
   applyTheme(test.theme);
 
-  document.getElementById('t-class-label').textContent = test.name;
+  document.getElementById('t-class-label').textContent = test.name.replace('Test','Quest');
   document.getElementById('t-player-label').textContent = pName + '  |  Age ' + pAge + '  |  ' + (pSchool==='k' ? 'Kimberlite School' : 'External Student');
-  document.getElementById('p-banner').innerHTML = 'PLAYING AS: <strong>' + pName + '</strong>  &nbsp;|&nbsp;  ' + test.emoji + ' ' + test.name;
+  document.getElementById('p-banner').innerHTML = '&#127918; PLAYING AS: <strong>' + pName + '</strong>  &nbsp;|&nbsp;  ' + test.emoji + ' ' + test.name.replace('Test','Quest');
+
+  // Reset hearts
+  for (var li=1;li<=3;li++) {
+    var h = document.getElementById('life'+li);
+    if(h) { h.className='heart'; h.innerHTML='&#10084;&#65039;'; }
+  }
 
   var area = document.getElementById('q-area');
   area.innerHTML = '';
@@ -1054,6 +1104,8 @@ function buildTest(cls) {
   });
 
   answers = new Array(total).fill(null);
+  MAX_XP = total * XP_PER_CORRECT;
+  xp = 0; lives = 3;
   updateHUD();
 }
 
@@ -1100,19 +1152,79 @@ function makeCard(q, idx) {
 }
 
 // ============================================================
-// ANSWER HANDLER
+// FUNNY FEEDBACK MESSAGES — theme-aware
+// ============================================================
+var FUNNY_CORRECT = {
+  animals: [
+    '&#127881; Roar! That is RIGHT! The giraffe is impressed!',
+    '&#128024; Elephant never forgets — and neither do you! Correct!',
+    '&#127913; The lions are cheering! Spot on!',
+    '&#128048; Hop hop hooray! You got it!',
+    '&#129421; Amazing! Even the monkey got that wrong once!'
+  ],
+  adventure: [
+    '&#127775; Quest point unlocked! Brilliant answer!',
+    '&#9733; Explorer level UP! You nailed it!',
+    '&#127881; The map glows gold! Correct!',
+    '&#128640; Charging ahead! That is absolutely right!',
+    '&#127807; The flowers bloom when you get it right!'
+  ],
+  gaming: [
+    '&#11088; LEVEL UP! Perfect answer!',
+    '&#9889; CRITICAL HIT! Correct!',
+    '&#127942; Achievement Unlocked: Grammar Genius!',
+    '&#44ff88; INSERT COIN — oh wait you do not need one, you are winning!',
+    '&#127918; You just speedran that question!'
+  ]
+};
+
+var FUNNY_WRONG = {
+  animals: [
+    '&#128128; Uh oh! Even the elephant is covering their eyes! Try again next time!',
+    '&#129418; The giraffe stretched all the way down to check — still wrong! But you will get it!',
+    '&#128049; The cat is judging you... but the cat also loves you! Keep going!',
+    '&#127920; Oops! The animals want you to try again — they believe in you!',
+    '&#128024; The elephant remembers the right answer... and now so will you!'
+  ],
+  adventure: [
+    '&#128128; You fell in the river! But heroes always get back up!',
+    '&#129335; The map is spinning! Wrong turn — but the adventure continues!',
+    '&#127775; That star went dark... but it will shine again! Keep exploring!',
+    '&#128640; Mission failed — but the quest is not over yet!',
+    '&#127807; The flowers wilted a little... but they will bloom again!'
+  ],
+  gaming: [
+    '&#128128; YOU DIED! But respawning in 3... 2... 1...',
+    '&#128169; Oops! Even the best players miss sometimes. Check the answer below!',
+    '&#9760; GAME OVER for that question — but not for you! Keep going!',
+    '&#128123; The grammar goblin got you! Learn from it and move on!',
+    '&#128054; Wrong! A wild correct answer appeared — see it below!'
+  ]
+};
+
+// ============================================================
+// ANSWER HANDLER — with lives and XP
 // ============================================================
 function handleAns(idx, oi, isC, cAns, exp, qText, allOpts) {
   if (answers[idx] !== null) return;
   answers[idx] = { correct:isC, chosen:allOpts[oi], right:cAns, exp:exp, q:qText };
-  if (isC) correct++;
+
+  var theme = TESTS[pClass].theme;
+
+  if (isC) {
+    correct++;
+    xp += XP_PER_CORRECT;
+  } else {
+    xp = Math.max(0, xp - XP_WRONG_PENALTY);
+    loseLife();
+  }
 
   var isFitb = document.querySelectorAll('#op-'+idx+' .fitb-btn').length > 0;
   var btns = document.querySelectorAll('#op-'+idx+' button');
   btns.forEach(function(b, bi) {
     b.onclick = null;
     var base = isFitb ? 'fitb-btn' : 'mcq-btn';
-    if (bi === oi)              b.className = base + (isC ? ' c' : ' w');
+    if (bi === oi)               b.className = base + (isC ? ' c' : ' w');
     else if (allOpts[bi]===cAns) b.className = base + ' c';
     else                         b.className = base + ' off';
   });
@@ -1120,16 +1232,36 @@ function handleAns(idx, oi, isC, cAns, exp, qText, allOpts) {
   var card = document.getElementById('qc-'+idx);
   card.className = 'q-card ' + (isC ? 'ok' : 'bad');
 
+  var funnyArr = isC ? FUNNY_CORRECT[theme] : FUNNY_WRONG[theme];
+  var funny = funnyArr[idx % funnyArr.length];
+
   var fb = document.getElementById('fb-'+idx);
   fb.className = 'fb show ' + (isC ? 'ok' : 'bad');
   fb.innerHTML = isC
-    ? '<span class="fb-lbl">&#10003; CORRECT!</span>' + exp
-    : '<span class="fb-lbl">&#10007; NOT QUITE — Correct answer: ' + cAns + '</span>' + exp;
+    ? '<span class="fb-lbl">&#10003; CORRECT! +'+XP_PER_CORRECT+' XP</span><em>' + funny + '</em><br><br>' + exp
+    : '<span class="fb-lbl">&#10007; WRONG! -'+XP_WRONG_PENALTY+' XP &mdash; Correct answer: ' + cAns + '</span><em>' + funny + '</em><br><br>' + exp;
 
   updateHUD();
 
+  // Check if all answered (and still have lives)
   var done = answers.every(function(a){return a!==null;});
-  if (done) setTimeout(showResults, 700);
+  if (done && lives > 0) setTimeout(showResults, 700);
+}
+
+// ============================================================
+// LOSE A LIFE
+// ============================================================
+function loseLife() {
+  if (lives <= 0) return;
+  var heartEl = document.getElementById('life'+lives);
+  if (heartEl) {
+    heartEl.className = 'heart-lost';
+    heartEl.innerHTML = '&#128420;';
+  }
+  lives--;
+  if (lives <= 0) {
+    setTimeout(showGameOver, 600);
+  }
 }
 
 // ============================================================
@@ -1137,11 +1269,12 @@ function handleAns(idx, oi, isC, cAns, exp, qText, allOpts) {
 // ============================================================
 function updateHUD() {
   var answered = answers.filter(function(a){return a!==null;}).length;
-  var pct = total>0 ? (answered/total)*100 : 0;
-  document.getElementById('hud-fill').style.width  = pct+'%';
-  document.getElementById('prog-fill').style.width = pct+'%';
-  document.getElementById('hud-txt').textContent = answered+' / '+total+' answered';
+  var xpPct = MAX_XP>0 ? Math.min((xp/MAX_XP)*100,100) : 0;
+  document.getElementById('hud-fill').style.width  = xpPct+'%';
+  document.getElementById('prog-fill').style.width = xpPct+'%';
+  document.getElementById('hud-xp-txt').textContent = xp+' XP';
   document.getElementById('hud-correct').textContent = correct;
+  document.getElementById('hud-total').textContent = total;
 }
 
 function startTimer() {
@@ -1152,6 +1285,37 @@ function startTimer() {
     var m=Math.floor(s/60), sec=s%60;
     document.getElementById('t-timer').textContent = '&#9201; '+m+':'+(sec<10?'0':'')+sec;
   },1000);
+}
+
+// ============================================================
+// GAME OVER — ran out of lives
+// ============================================================
+function showGameOver() {
+  clearInterval(timerInt);
+  var end = new Date();
+  var secs = Math.round((end - startTime)/1000);
+  var mins = Math.floor(secs/60), s=secs%60;
+  var timeStr = mins+'m '+(s<10?'0':'')+s+'s';
+  var test = TESTS[pClass];
+
+  var goMsgs = {
+    animals: '"Oh no! The animals are sad... but they KNOW you will come back stronger! &#128048;&#128024;&#127913;"',
+    adventure: '"The quest is not over! Every great explorer falls before they rise. Try again! &#127775;"',
+    gaming: '"&#128128; GAME OVER! But every legend has a respawn. Hit Try Again and CRUSH IT!"'
+  };
+
+  var ov = document.getElementById('gameover-ov');
+  ov.className = 'overlay show ' + test.theme;
+
+  var goEmoji = {animals:'&#128048;', adventure:'&#127775;', gaming:'&#128128;'};
+  document.getElementById('go-emoji').innerHTML = goEmoji[test.theme] || '&#128128;';
+  document.getElementById('go-name').textContent = pName + ' | Class ' + rom(pClass);
+  document.getElementById('go-msg').innerHTML = goMsgs[test.theme];
+  document.getElementById('go-score').textContent = correct + ' / ' + total;
+  document.getElementById('go-xp').textContent = xp + ' XP';
+  document.getElementById('go-time').textContent = timeStr;
+
+  submitToSheet(timeStr, Math.round((correct/total)*100), correct, total, 'Game Over', 'sub-note-go');
 }
 
 // ============================================================
@@ -1190,6 +1354,7 @@ function showResults() {
   document.getElementById('ov-badge').innerHTML   = badge;
   document.getElementById('ov-badge').className   = 'ov-badge ' + badgeClass;
   document.getElementById('sc-score').textContent = correct + ' / ' + total;
+  document.getElementById('sc-xp').textContent   = xp + ' / ' + MAX_XP + ' XP';
   document.getElementById('sc-pct').textContent   = pct + '%';
   document.getElementById('sc-time').textContent  = timeStr;
   document.getElementById('sc-class').textContent = rom(pClass);
@@ -1208,7 +1373,7 @@ function showResults() {
   });
   document.getElementById('rev-items').innerHTML = html;
 
-  submitToSheet(timeStr, pct, correct, total);
+  submitToSheet(timeStr, pct, correct, total, 'Completed', 'sub-note');
 }
 
 function doReview() {
@@ -1217,8 +1382,9 @@ function doReview() {
 }
 
 function doRetake() {
-  correct=0; answers=[];
-  document.getElementById('result-ov').className = 'overlay ' + TESTS[pClass].theme;
+  correct=0; answers=[]; lives=3; xp=0;
+  document.getElementById('result-ov').className   = 'overlay ' + TESTS[pClass].theme;
+  document.getElementById('gameover-ov').className = 'overlay ' + TESTS[pClass].theme;
   document.getElementById('review-wrap').style.display = 'none';
   buildTest(pClass);
   document.body.className = TESTS[pClass].theme;
@@ -1229,26 +1395,31 @@ function doRetake() {
 // ============================================================
 // GOOGLE SHEETS SUBMISSION
 // ============================================================
-function submitToSheet(timeStr, pct, score, tot) {
-  var note = document.getElementById('sub-note');
-  if (!SHEET_URL || SHEET_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') { note.textContent=''; return; }
+function submitToSheet(timeStr, pct, score, tot, result, noteId) {
+  var note = document.getElementById(noteId || 'sub-note');
+  if (!SHEET_URL || SHEET_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') { if(note) note.textContent=''; return; }
 
-  note.className = 'sub-note sending';
-  note.textContent = 'Saving results...';
+  if(note) { note.className='sub-note sending'; note.textContent='Saving results...'; }
 
   var now = new Date();
-  var d   = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
-  var t   = now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  var d = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+  var t = now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
 
-  var p = { name:pName, age:pAge, class:'Class '+rom(pClass), school:(pSchool==='k'?'Kimberlite Elementary School':'External'), phone:pPhone||'—', score:score+'/'+tot, pct:pct+'%', time:timeStr, date:d, clock:t };
-  var q = '';
-  for (var k in p) q += (q?'&':'?')+k+'='+encodeURIComponent(p[k]);
+  var p = {
+    name:pName, age:pAge, class:'Class '+rom(pClass),
+    school:(pSchool==='k'?'Kimberlite Elementary School':'External'),
+    phone:pPhone||'—', score:score+'/'+tot, xp:xp+'/'+MAX_XP,
+    pct:pct+'%', result:result||'Completed', time:timeStr, date:d, clock:t
+  };
+  var q='';
+  for (var k in p) q+=(q?'&':'?')+k+'='+encodeURIComponent(p[k]);
 
   var img = new Image();
-  img.onload = img.onerror = function() { note.className='sub-note sent'; note.innerHTML='&#10003; Results saved to teacher dashboard!'; };
+  img.onload = img.onerror = function() {
+    if(note) { note.className='sub-note sent'; note.innerHTML='&#10003; Results saved to teacher dashboard!'; }
+  };
   img.src = SHEET_URL + q;
 }
 </script>
 </body>
 </html>
-
