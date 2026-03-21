@@ -435,6 +435,65 @@ body {
 }
 .overlay.show { display: -webkit-flex; display: flex; }
 
+/* Animals overlay — solid warm cream background so text is crystal clear */
+.overlay.animals {
+  background: rgba(253, 244, 227, 0.98);
+}
+/* Adventure overlay — solid light green background */
+.overlay.adventure {
+  background: rgba(240, 251, 244, 0.98);
+}
+
+/* Animals overlay text colours — dark on light background */
+.overlay.animals .ov-title {
+  color: #c05a10;
+  text-shadow: 2px 2px 0 #e8a060;
+}
+.overlay.animals .ov-name  { color: #8b4010; }
+.overlay.animals .ov-msg   { color: #6b3808; }
+.overlay.animals .sc-label { color: #a06030; }
+.overlay.animals .sc-val   { color: #c05a10; }
+.overlay.animals .sub-note.sent    { color: #2a6b30; }
+.overlay.animals .sub-note.sending { color: #c05a10; }
+.overlay.animals .score-card {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(224,123,58,0.3);
+}
+.overlay.animals .btn-sec {
+  background: rgba(224,123,58,0.1);
+  border-color: #e07b3a;
+  color: #c05a10;
+}
+.overlay.animals .rev-q    { color: #3d2410; }
+.overlay.animals .rev-exp  { color: #7a5030; }
+.overlay.animals .review-hdr { color: #c05a10; border-color: #c05a10; }
+.overlay.animals .rev-item { background: rgba(255,255,255,0.7); }
+
+/* Adventure overlay text colours */
+.overlay.adventure .ov-title {
+  color: #0f6030;
+  text-shadow: 2px 2px 0 #5abf80;
+}
+.overlay.adventure .ov-name  { color: #0a4020; }
+.overlay.adventure .ov-msg   { color: #2a6040; }
+.overlay.adventure .sc-label { color: #4a8060; }
+.overlay.adventure .sc-val   { color: #0f6030; }
+.overlay.adventure .sub-note.sent    { color: #0f6030; }
+.overlay.adventure .sub-note.sending { color: #0a7040; }
+.overlay.adventure .score-card {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(26,150,72,0.3);
+}
+.overlay.adventure .btn-sec {
+  background: rgba(26,150,72,0.1);
+  border-color: #1a9648;
+  color: #0f6030;
+}
+.overlay.adventure .rev-q    { color: #0f2d18; }
+.overlay.adventure .rev-exp  { color: #3a6848; }
+.overlay.adventure .review-hdr { color: #0f6030; border-color: #0f6030; }
+.overlay.adventure .rev-item { background: rgba(255,255,255,0.7); }
+
 /* Bounce animation */
 @keyframes bounce { 0%{transform:translateY(0);} 100%{transform:translateY(-14px);} }
 .bounce { animation: bounce 0.8s ease infinite alternate; display: block; font-size: 54px; margin-bottom: 12px; }
@@ -1172,7 +1231,7 @@ function doRetake() {
 // ============================================================
 function submitToSheet(timeStr, pct, score, tot) {
   var note = document.getElementById('sub-note');
-  if (!SHEET_URL || SHEET_URL==='https://script.google.com/macros/s/AKfycbwd5ek9vbhXG4AqNaa7TpmMZ5K5D4SUzjRn8Xf3M8iIWID5Dn9EGRh6Z2OtHN5W4UfE/exec') { note.textContent=''; return; }
+  if (!SHEET_URL || SHEET_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') { note.textContent=''; return; }
 
   note.className = 'sub-note sending';
   note.textContent = 'Saving results...';
@@ -1186,7 +1245,7 @@ function submitToSheet(timeStr, pct, score, tot) {
   for (var k in p) q += (q?'&':'?')+k+'='+encodeURIComponent(p[k]);
 
   var img = new Image();
-  img.onload = img.onerror = function() { note.className='sub-note sent'; note.textContent='&#10003; Results saved to teacher dashboard!'; };
+  img.onload = img.onerror = function() { note.className='sub-note sent'; note.innerHTML='&#10003; Results saved to teacher dashboard!'; };
   img.src = SHEET_URL + q;
 }
 </script>
