@@ -373,12 +373,22 @@ body {
   text-align:center; padding:24px; overflow-y:auto;
 }
 .overlay.visible { display:-webkit-flex; display:flex; }
-.win-stars { font-size:34px; margin-bottom:14px; letter-spacing:6px; }
+.win-emoji { font-size:52px; margin-bottom:10px; animation: bounce 0.8s ease infinite alternate; display:block; }
+@keyframes bounce { 0%{transform:translateY(0);} 100%{transform:translateY(-12px);} }
 .win-title { font-family:'Courier New',monospace; font-size:clamp(14px,4vw,22px); color:#ffdd00; font-weight:bold; text-shadow:2px 2px 0 #aa8800; margin-bottom:10px; line-height:1.5; letter-spacing:1px; }
 .win-player { font-size:18px; color:#00ffee; font-weight:bold; margin-bottom:8px; }
-.win-sub  { font-size:14px; color:#aaaacc; margin-bottom:14px; line-height:1.6; }
-.win-xp   { font-family:'Courier New',monospace; font-size:12px; color:#44ff88; margin-bottom:8px; font-weight:bold; letter-spacing:1px; }
-.win-score { font-family:'Courier New',monospace; font-size:12px; color:#ffdd00; margin-bottom:22px; letter-spacing:1px; }
+.win-sub  { font-size:14px; color:#aaaacc; margin-bottom:14px; line-height:1.6; text-align:center; }
+.win-badge { display:inline-block; font-family:'Courier New',monospace; font-size:11px; font-weight:bold; padding:6px 18px; border-radius:20px; margin-bottom:12px; letter-spacing:2px; }
+.badge-legend   { background:linear-gradient(90deg,#ffdd00,#ff8c00); color:#000; }
+.badge-great    { background:linear-gradient(90deg,#44ff88,#00ffee); color:#000; }
+.badge-good     { background:linear-gradient(90deg,#44aaff,#cc44ff); color:#fff; }
+.badge-keep-going { background:linear-gradient(90deg,#ff4444,#ff44aa); color:#fff; }
+.win-score-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:16px 24px; margin:14px 0; width:100%; max-width:360px; }
+.win-score-row { display:-webkit-flex; display:flex; -webkit-justify-content:space-between; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+.win-score-row:last-child { border-bottom:none; }
+.win-score-label { font-family:'Courier New',monospace; font-size:9px; color:#8888aa; letter-spacing:1px; }
+.win-score-val   { font-family:'Courier New',monospace; font-size:11px; color:#ffdd00; font-weight:bold; }
+.win-message { font-size:15px; color:#00ffee; text-align:center; max-width:340px; line-height:1.6; margin-bottom:16px; font-style:italic; }
 
 .submit-status { font-size:13px; margin-bottom:16px; min-height:20px; }
 .submit-status.sending { color:#ffdd00; }
@@ -444,20 +454,33 @@ body {
 
 <!-- WIN SCREEN -->
 <div class="overlay" id="win-screen">
-  <div class="win-stars">&#11088;&#11088;&#11088;</div>
-  <div class="win-title">YOU ESCAPED<br>THE GRAMMAR OBBY!</div>
+  <div class="win-emoji" id="win-emoji">&#127881;</div>
+  <div class="win-title" id="win-title">YOU ESCAPED<br>THE GRAMMAR OBBY!</div>
   <div class="win-player" id="win-player-name"></div>
-  <div class="win-sub">All 33 levels crushed. You are an absolute Grammar Legend!</div>
-  <div class="win-xp"    id="win-xp-text">FINAL XP: 0 / 825</div>
-  <div class="win-score" id="win-score-text">SCORE: 0 / 33 CORRECT</div>
+  <div class="win-badge" id="win-badge"></div>
+  <div class="win-sub" id="win-sub-msg"></div>
+  <div class="win-score-card">
+    <div class="win-score-row"><span class="win-score-label">&#127919; SCORE</span><span class="win-score-val" id="win-score-text">0 / 33</span></div>
+    <div class="win-score-row"><span class="win-score-label">&#9889; XP EARNED</span><span class="win-score-val" id="win-xp-text">0 / 825</span></div>
+    <div class="win-score-row"><span class="win-score-label">&#9201; TIME TAKEN</span><span class="win-score-val" id="win-time-text">—</span></div>
+    <div class="win-score-row"><span class="win-score-label">&#128150; ACCURACY</span><span class="win-score-val" id="win-accuracy-text">—</span></div>
+  </div>
+  <div class="win-message" id="win-message"></div>
   <div class="submit-status" id="submit-status"></div>
   <button class="play-again-btn" onclick="resetGame()">&#8635; PLAY AGAIN</button>
 </div>
 
 <!-- GAME OVER SCREEN -->
 <div class="overlay" id="gameover-screen">
+  <div class="win-emoji">&#128128;</div>
   <div class="go-title">YOU FELL<br>OFF THE OBBY!</div>
-  <div class="go-sub">You ran out of lives.<br>Even the best Roblox players respawn — try again!</div>
+  <div class="win-player" id="go-player-name"></div>
+  <div class="win-score-card">
+    <div class="win-score-row"><span class="win-score-label">&#127919; SCORE SO FAR</span><span class="win-score-val" id="go-score-text">0 / 33</span></div>
+    <div class="win-score-row"><span class="win-score-label">&#9889; XP EARNED</span><span class="win-score-val" id="go-xp-text">0 / 825</span></div>
+    <div class="win-score-row"><span class="win-score-label">&#9201; TIME</span><span class="win-score-val" id="go-time-text">—</span></div>
+  </div>
+  <div class="go-sub">Don't give up! Every Grammar Legend started as a beginner.<br>Try again and beat your score!</div>
   <div class="submit-status" id="submit-status-go"></div>
   <button class="play-again-btn" onclick="resetGame()">&#8635; TRY AGAIN</button>
 </div>
@@ -589,7 +612,7 @@ body {
 // IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT URL BELOW
 // Follow the setup instructions in the README to get this URL
 // ============================================================
-var SHEET_URL = 'https://script.google.com/macros/s/AKfycbwExNHZ0hUnnVhxRVumXielkInZ_LhnFYMesOJhYZDT-DdKVBTmcPQgytlFAZRIYJ44/exec';
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbw9oZM1jAjEorWlH0qqVwXEYa_wPKyX6ArvHokQO0nMq0x3h3XNuzGe7SWoIXs3m1od/exec';
 
 // Game state
 var xp = 0;
@@ -669,6 +692,12 @@ function answer(level, btn, isCorrect) {
     fb.className = 'feedback visible fb-wrong';
     loseLife();
   }
+  // Check if ALL 33 questions have been answered (win or lose on questions)
+  var totalAnswered = 0;
+  for (var j = 0; j < answered.length; j++) { if (answered[j]) totalAnswered++; }
+  if (totalAnswered === TOTAL_Q && solvedCount < TOTAL_Q && lives > 0) {
+    setTimeout(function() { endGame(true); }, 900);
+  }
 }
 
 function loseLife() {
@@ -703,23 +732,71 @@ function endGame(won) {
   var mins = Math.floor(timeTaken / 60);
   var secs = timeTaken % 60;
   var timeStr = mins + 'm ' + secs + 's';
+  var accuracy = Math.round((solvedCount / TOTAL_Q) * 100);
+  var pct = accuracy;
 
   if (won) {
-    document.getElementById('win-player-name').textContent = '&#127881; Well done, ' + playerName + '!';
-    document.getElementById('win-xp-text').textContent = 'FINAL XP: ' + xp + ' / ' + MAX_XP;
-    document.getElementById('win-score-text').textContent = 'SCORE: ' + solvedCount + ' / ' + TOTAL_Q + ' CORRECT  |  TIME: ' + timeStr;
+    // Score-based title, badge and message
+    var emoji, title, badge, badgeClass, subMsg, winMsg;
+
+    if (pct === 100) {
+      emoji = '&#127942;';
+      title = 'PERFECT SCORE!<br>GRAMMAR LEGEND!';
+      badge = '&#11088; GRAMMAR LEGEND';
+      badgeClass = 'badge-legend';
+      subMsg = 'Unbelievable! ' + playerName + ', you got every single question right!';
+      winMsg = '"A perfect score means a perfect mind. Kimberlite Elementary School is proud of you!"';
+    } else if (pct >= 80) {
+      emoji = '&#127881;';
+      title = 'YOU ESCAPED<br>THE GRAMMAR OBBY!';
+      badge = '&#127775; GRAMMAR STAR';
+      badgeClass = 'badge-great';
+      subMsg = 'Fantastic work, ' + playerName + '! You are a true Grammar Star!';
+      winMsg = '"Brilliant effort! Keep reading, keep writing, and you will be unstoppable!"';
+    } else if (pct >= 60) {
+      emoji = '&#128079;';
+      title = 'OBBY CLEARED!<br>WELL DONE!';
+      badge = '&#128170; GRAMMAR CHAMP';
+      badgeClass = 'badge-good';
+      subMsg = 'Good job, ' + playerName + '! You made it through the Obby!';
+      winMsg = '"Great effort today! Review the questions you missed and try again to beat your score!"';
+    } else {
+      emoji = '&#128526;';
+      title = 'OBBY COMPLETE!<br>KEEP GOING!';
+      badge = '&#128640; KEEP CLIMBING';
+      badgeClass = 'badge-keep-going';
+      subMsg = 'You finished, ' + playerName + '! Every attempt makes you stronger!';
+      winMsg = '"Grammar takes practice — and you showed up today. That already makes you a winner!"';
+    }
+
+    document.getElementById('win-emoji').innerHTML = emoji;
+    document.getElementById('win-title').innerHTML = title;
+    document.getElementById('win-player-name').textContent = playerName + (playerClass !== '—' ? '  |  Class ' + playerClass + (playerSection !== '—' ? ' ' + playerSection : '') : '');
+    document.getElementById('win-badge').innerHTML = badge;
+    document.getElementById('win-badge').className = 'win-badge ' + badgeClass;
+    document.getElementById('win-sub-msg').textContent = subMsg;
+    document.getElementById('win-score-text').textContent = solvedCount + ' / ' + TOTAL_Q + ' correct';
+    document.getElementById('win-xp-text').textContent = xp + ' / ' + MAX_XP + ' XP';
+    document.getElementById('win-time-text').textContent = timeStr;
+    document.getElementById('win-accuracy-text').textContent = accuracy + '%';
+    document.getElementById('win-message').textContent = winMsg;
     document.getElementById('win-screen').className = 'overlay visible';
-    submitToSheet(won, timeStr, 'submit-status');
+    submitToSheet(true, timeStr, accuracy, 'submit-status');
+
   } else {
+    document.getElementById('go-player-name').textContent = playerName + (playerClass !== '—' ? '  |  Class ' + playerClass : '');
+    document.getElementById('go-score-text').textContent = solvedCount + ' / ' + TOTAL_Q + ' correct';
+    document.getElementById('go-xp-text').textContent = xp + ' / ' + MAX_XP + ' XP';
+    document.getElementById('go-time-text').textContent = timeStr;
     document.getElementById('gameover-screen').className = 'overlay visible';
-    submitToSheet(won, timeStr, 'submit-status-go');
+    submitToSheet(false, timeStr, accuracy, 'submit-status-go');
   }
 }
 
-function submitToSheet(won, timeStr, statusId) {
+function submitToSheet(won, timeStr, accuracy, statusId) {
   var statusEl = document.getElementById(statusId);
 
-  if (!SHEET_URL || SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+  if (!SHEET_URL || SHEET_URL === 'https://script.google.com/macros/s/AKfycbw9oZM1jAjEorWlH0qqVwXEYa_wPKyX6ArvHokQO0nMq0x3h3XNuzGe7SWoIXs3m1od/exec') {
     statusEl.className = 'submit-status';
     statusEl.textContent = '';
     return;
@@ -733,17 +810,18 @@ function submitToSheet(won, timeStr, statusId) {
   var timeOfDay = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
 
   var payload = {
-    name:    playerName,
-    class:   playerClass,
-    section: playerSection,
-    score:   solvedCount,
-    total:   TOTAL_Q,
-    xp:      xp,
-    maxXp:   MAX_XP,
-    result:  won ? 'Completed' : 'Game Over',
-    time:    timeStr,
-    date:    dateStr,
-    clock:   timeOfDay
+    name:     playerName,
+    class:    playerClass,
+    section:  playerSection,
+    score:    solvedCount,
+    total:    TOTAL_Q,
+    xp:       xp,
+    maxXp:    MAX_XP,
+    accuracy: accuracy + '%',
+    result:   won ? 'Completed' : 'Game Over',
+    time:     timeStr,
+    date:     dateStr,
+    clock:    timeOfDay
   };
 
   var img = new Image();
@@ -769,3 +847,4 @@ function resetGame()   { window.location.reload(); }
 </script>
 </body>
 </html>
+
